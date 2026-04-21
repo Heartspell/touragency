@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Мои бронирования — TourKG</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/custom.css}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div style="background:#fff;border-bottom:1px solid #E5E7EB;padding:24px 0;">
+  <div class="container">
+    <h1 style="font-size:1.5rem;font-weight:800;margin:0;">Мои бронирования</h1>
+  </div>
+</div>
+
+<div class="container" style="padding:32px 12px;">
+  <div class="row g-4">
+
+    <!-- Profile sidebar -->
+    <div class="col-lg-3">
+      <div class="tkg-card text-center" style="padding:24px;">
+        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto 12px;">
+          <i data-lucide="user" style="width:36px;height:36px;"></i>
+        </div>
+        <div style="font-weight:800;font-size:1rem;" th:text="${user.fullName}"></div>
+        <div style="font-size:.82rem;color:#6B7280;margin-top:4px;" th:text="${user.email}"></div>
+        <div style="font-size:.82rem;color:#6B7280;" th:if="${user.phone}" th:text="${user.phone}"></div>
+        <span class="badge-tkg badge-primary mt-3 d-inline-block">Турист</span>
+        <hr style="margin:16px 0;border-color:#F3F4F6;">
+        <div style="font-size:.85rem;color:#6B7280;">Всего броней: <strong th:text="${bookings.size()}"></strong></div>
+        <a th:href="@{/tours}" class="btn-primary-tkg w-100 justify-content-center mt-3" style="font-size:.88rem;padding:10px;">
+          <i data-lucide="search" style="width:14px;height:14px;margin-right:4px;"></i> Найти туры
+        </a>
+      </div>
+    </div>
+
+    <!-- Bookings -->
+    <div class="col-lg-9">
+      <div th:if="${success}" class="tkg-alert tkg-alert-success">
+        <i data-lucide="check-circle" style="width:16px;height:16px;"></i>
+        <span th:text="${success}"></span>
+      </div>
+      <div th:if="${error}" class="tkg-alert tkg-alert-danger">
+        <i data-lucide="alert-circle" style="width:16px;height:16px;"></i>
+        <span th:text="${error}"></span>
+      </div>
+
+      <div th:if="${bookings.empty}" style="background:#fff;border-radius:16px;border:1px solid #E5E7EB;padding:64px;text-align:center;color:#6B7280;">
+        <i data-lucide="luggage" style="width:64px;height:64px;margin-bottom:16px;opacity:.3;"></i>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:8px;color:#374151;">У вас пока нет бронирований</div>
+        <div style="margin-bottom:20px;">Откройте каталог и выберите свой первый тур!</div>
+        <a th:href="@{/tours}" class="btn-accent-tkg">Смотреть туры →</a>
+      </div>
+
+      <div th:if="${!bookings.empty}" class="d-flex flex-column gap-3">
+        <div th:each="b : ${bookings}"
+             style="background:#fff;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;transition:.2s;"
+             onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+          <div style="display:flex;gap:0;">
+            <!-- Tour thumbnail -->
+            <div style="width:120px;min-width:120px;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;overflow:hidden;" class="d-none d-md-flex">
+              <img th:if="${b.tourDate.tour.coverImage != null}" th:src="@{/tours/{id}/cover(id=${b.tourDate.tour.id})}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" alt="">
+              <span th:unless="${b.tourDate.tour.coverImage != null}" th:switch="${b.tourDate.tour.category.name()}">
+                <i th:case="'BEACH'" data-lucide="umbrella" style="width:40px;height:40px;color:#fff;opacity:.8;"></i>
+                <i th:case="'MOUNTAIN'" data-lucide="mountain" style="width:40px;height:40px;color:#fff;opacity:.8;"></i>
+                <i th:case="'CITY'" data-lucide="building-2" style="width:40px;height:40px;color:#fff;opacity:.8;"></i>
+                <i th:case="'ADVENTURE'" data-lucide="tent" style="width:40px;height:40px;color:#fff;opacity:.8;"></i>
+                <i th:case="'CULTURAL'" data-lucide="landmark" style="width:40px;height:40px;color:#fff;opacity:.8;"></i>
+                <i th:case="*" data-lucide="plane" style="width:40px;height:40px;color:#fff;opacity:.8;"></i>
+              </span>
+            </div>
+            <div style="flex:1;padding:20px;">
+              <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <a th:href="@{/tours/{id}(id=${b.tourDate.tour.id})}"
+                     style="font-size:1rem;font-weight:800;color:#111827;text-decoration:none;"
+                     th:text="${b.tourDate.tour.title}"></a>
+                  <div style="font-size:.82rem;color:#6B7280;margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;">
+                    <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> <span th:text="${b.tourDate.tour.destination}"></span></span>
+                    <span><i data-lucide="calendar" style="width:12px;height:12px;"></i> <span th:text="${#temporals.format(b.tourDate.departureDate,'dd.MM.yyyy')}"></span></span>
+                    <span><i data-lucide="users" style="width:12px;height:12px;"></i> <span th:text="${b.participants}"></span> чел.</span>
+                  </div>
+                </div>
+                <span th:switch="${b.status.name()}">
+                  <span th:case="'CONFIRMED'" class="badge-tkg badge-success">
+                    <i data-lucide="check-circle" style="width:12px;height:12px;margin-right:3px;"></i> Подтверждено
+                  </span>
+                  <span th:case="'PENDING'" class="badge-tkg badge-warning">
+                    <i data-lucide="clock" style="width:12px;height:12px;margin-right:3px;"></i> Ожидание
+                  </span>
+                  <span th:case="'CANCELLED'" class="badge-tkg badge-danger">
+                    <i data-lucide="x-circle" style="width:12px;height:12px;margin-right:3px;"></i> Отменено
+                  </span>
+                  <span th:case="'COMPLETED'" class="badge-tkg badge-primary">
+                    <i data-lucide="flag" style="width:12px;height:12px;margin-right:3px;"></i> Завершено
+                  </span>
+                  <span th:case="*" class="badge-tkg badge-gray" th:text="${b.status}"></span>
+                </span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid #F3F4F6;flex-wrap:wrap;gap:8px;">
+                <div style="font-size:1.1rem;font-weight:900;color:#2563EB;" th:text="${#numbers.formatDecimal(b.totalPrice,0,'COMMA',0,'POINT')} + ' сом'"></div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <!-- Pay button for PENDING bookings -->
+                  <a th:if="${b.status.name() == 'PENDING'}"
+                     th:href="@{/payment/mbank(bookingId=${b.id},amount=${b.totalPrice})}"
+                     style="background:linear-gradient(135deg,#7C3AED,#6B21A8);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+                    <i data-lucide="credit-card" style="width:14px;height:14px;"></i> Оплатить
+                  </a>
+                  <form th:if="${b.status.name() != 'CANCELLED' and b.status.name() != 'COMPLETED'}"
+                        th:action="@{/booking/{id}/cancel(id=${b.id})}" method="post"
+                        onsubmit="return confirm('Отменить это бронирование?')">
+                    <button type="submit" style="background:#FEF2F2;color:#EF4444;border:none;border-radius:8px;padding:8px 16px;font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px;"
+                            onmouseover="this.style.background='#FECACA'" onmouseout="this.style.background='#FEF2F2'">
+                      <i data-lucide="x" style="width:14px;height:14px;"></i> Отменить
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script th:src="@{/js/custom.js}"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

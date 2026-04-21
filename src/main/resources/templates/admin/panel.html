@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Админ-панель — TourKG</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/custom.css}">
+  <style>
+    .admin-tab-nav { display:flex; gap:4px; border-bottom:2px solid #E5E7EB; margin-bottom:28px; }
+    .admin-tab-btn {
+      display:flex; align-items:center; gap:7px; padding:10px 20px;
+      border:none; background:none; border-radius:8px 8px 0 0; font-weight:600;
+      font-size:.93rem; color:#6B7280; cursor:pointer; transition:.18s;
+      border-bottom:2px solid transparent; margin-bottom:-2px;
+    }
+    .admin-tab-btn.active { color:#2563EB; border-bottom-color:#2563EB; background:#EFF6FF; }
+    .admin-tab-btn:hover:not(.active) { background:#F3F4F6; color:#374151; }
+    .admin-tab-pane { display:none; }
+    .admin-tab-pane.active { display:block; }
+
+    .cms-section-card { background:#fff; border:1px solid #E5E7EB; border-radius:14px; margin-bottom:20px; }
+    .cms-section-header {
+      display:flex; align-items:center; gap:8px; padding:14px 20px;
+      border-bottom:1px solid #F3F4F6; font-weight:700; font-size:.97rem; color:#374151;
+    }
+    .cms-section-body { padding:20px; }
+    .cms-field-label { font-size:.83rem; font-weight:600; color:#6B7280; margin-bottom:4px; }
+    .cms-input {
+      width:100%; border:1.5px solid #E5E7EB; border-radius:9px; padding:9px 14px;
+      font-size:.93rem; font-family:inherit; transition:border-color .18s;
+      background:#FAFAFA;
+    }
+    .cms-input:focus { outline:none; border-color:#2563EB; background:#fff; }
+    textarea.cms-input { resize:vertical; min-height:72px; }
+
+    .user-search-form { display:flex; gap:10px; margin-bottom:20px; }
+    .user-search-input {
+      flex:1; border:1.5px solid #E5E7EB; border-radius:10px; padding:9px 16px;
+      font-size:.93rem; font-family:inherit;
+    }
+    .user-search-input:focus { outline:none; border-color:#2563EB; }
+
+    .role-select {
+      border:1.5px solid #E5E7EB; border-radius:8px; padding:5px 10px;
+      font-size:.83rem; font-family:inherit; cursor:pointer;
+    }
+    .role-select:focus { outline:none; border-color:#2563EB; }
+
+    .btn-sm-danger {
+      background:#FEF2F2; color:#DC2626; border:1.5px solid #FECACA;
+      border-radius:8px; padding:5px 12px; font-size:.82rem; font-weight:600;
+      cursor:pointer; transition:.18s;
+    }
+    .btn-sm-danger:hover { background:#FEE2E2; }
+
+    .tkg-alert-success {
+      background:#ECFDF5; border:1px solid #6EE7B7; color:#065F46;
+      border-radius:10px; padding:12px 18px; margin-bottom:18px;
+      display:flex; align-items:center; gap:8px; font-weight:500;
+    }
+    .tkg-alert-error {
+      background:#FEF2F2; border:1px solid #FCA5A5; color:#991B1B;
+      border-radius:10px; padding:12px 18px; margin-bottom:18px;
+      display:flex; align-items:center; gap:8px; font-weight:500;
+    }
+
+    .stat-card { cursor:default; }
+    .cms-save-bar {
+      position:sticky; bottom:0; background:#fff; border-top:1px solid #E5E7EB;
+      padding:16px 0; margin-top:8px; z-index:10;
+    }
+  </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Page Header -->
+<div style="background:#fff;border-bottom:1px solid #E5E7EB;padding:20px 0;">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <h1 style="font-size:1.4rem;font-weight:800;margin:0;display:flex;align-items:center;gap:8px;">
+        <i data-lucide="settings-2" style="width:22px;height:22px;color:#6B7280;"></i>
+        Панель администратора
+      </h1>
+      <div style="display:flex;gap:8px;">
+        <a th:href="@{/}" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;background:#F3F4F6;color:#374151;font-size:.85rem;font-weight:600;text-decoration:none;">
+          <i data-lucide="home" style="width:14px;height:14px;"></i> Сайт
+        </a>
+        <a th:href="@{/tours}" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;background:#EFF6FF;color:#2563EB;font-size:.85rem;font-weight:600;text-decoration:none;">
+          <i data-lucide="map" style="width:14px;height:14px;"></i> Туры
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding:28px 12px;">
+
+  <!-- Flash messages -->
+  <div th:if="${successMsg}" class="tkg-alert-success">
+    <i data-lucide="check-circle" style="width:18px;height:18px;flex-shrink:0;"></i>
+    <span th:text="${successMsg}"></span>
+  </div>
+  <div th:if="${errorMsg}" class="tkg-alert-error">
+    <i data-lucide="alert-circle" style="width:18px;height:18px;flex-shrink:0;"></i>
+    <span th:text="${errorMsg}"></span>
+  </div>
+
+  <!-- Stat cards (always visible) -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="users" style="width:28px;height:28px;color:#2563EB;"></i></div>
+        <div class="stat-value" th:text="${userCount}">0</div>
+        <div class="stat-name">Пользователей</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="map" style="width:28px;height:28px;color:#7C3AED;"></i></div>
+        <div class="stat-value" th:text="${tourCount}">0</div>
+        <div class="stat-name">Туров всего</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="check-circle" style="width:28px;height:28px;color:#10B981;"></i></div>
+        <div class="stat-value" th:text="${activeTourCount}">0</div>
+        <div class="stat-name">Активных туров</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="ticket" style="width:28px;height:28px;color:#F97316;"></i></div>
+        <div class="stat-value" th:text="${bookingCount}">0</div>
+        <div class="stat-name">Бронирований</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab navigation -->
+  <div class="admin-tab-nav">
+    <button class="admin-tab-btn" th:classappend="${activeTab == 'dashboard'} ? 'active'"
+            onclick="switchTab('dashboard')" id="tab-btn-dashboard">
+      <i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i> Дашборд
+    </button>
+    <button class="admin-tab-btn" th:classappend="${activeTab == 'users'} ? 'active'"
+            onclick="switchTab('users')" id="tab-btn-users">
+      <i data-lucide="users" style="width:16px;height:16px;"></i> Пользователи
+    </button>
+    <button class="admin-tab-btn" th:classappend="${activeTab == 'cms'} ? 'active'"
+            onclick="switchTab('cms')" id="tab-btn-cms">
+      <i data-lucide="pencil-ruler" style="width:16px;height:16px;"></i> Управление сайтом
+    </button>
+  </div>
+
+  <!-- ===== TAB: DASHBOARD ===== -->
+  <div class="admin-tab-pane" th:classappend="${activeTab == 'dashboard'} ? 'active'" id="tab-dashboard">
+    <div class="tkg-card">
+      <div class="tkg-card-header">
+        <i data-lucide="users" style="width:15px;height:15px;margin-right:6px;"></i>
+        Последние пользователи
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tkg-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Имя</th><th>Email</th><th>Телефон</th><th>Роль</th><th>Дата регистрации</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="u : ${recentUsers}">
+              <td style="color:#9CA3AF;font-weight:600;" th:text="${u.id}"></td>
+              <td style="font-weight:600;" th:text="${u.fullName}"></td>
+              <td style="font-size:.88rem;" th:text="${u.email}"></td>
+              <td style="font-size:.85rem;color:#6B7280;" th:text="${u.phone ?: '—'}"></td>
+              <td>
+                <span th:switch="${u.role.name()}">
+                  <span th:case="'ADMIN'" class="badge-tkg badge-danger">ADMIN</span>
+                  <span th:case="'OPERATOR'" class="badge-tkg badge-primary">OPERATOR</span>
+                  <span th:case="*" class="badge-tkg badge-gray">TOURIST</span>
+                </span>
+              </td>
+              <td style="font-size:.85rem;color:#6B7280;" th:text="${#temporals.format(u.createdAt,'dd.MM.yyyy HH:mm')}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(recentUsers)}">
+              <td colspan="6" style="text-align:center;color:#9CA3AF;padding:28px;">Нет пользователей</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:14px 20px;border-top:1px solid #F3F4F6;">
+        <a th:href="@{/admin/users}" style="font-size:.85rem;color:#2563EB;font-weight:600;text-decoration:none;">
+          Управление пользователями →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: USERS ===== -->
+  <div class="admin-tab-pane" th:classappend="${activeTab == 'users'} ? 'active'" id="tab-users">
+
+    <!-- Search form -->
+    <form th:action="@{/admin/users}" method="get" class="user-search-form">
+      <input type="text" name="q" class="user-search-input"
+             placeholder="Поиск по имени или email..."
+             th:value="${q}">
+      <button type="submit" class="btn-accent-tkg" style="display:flex;align-items:center;gap:6px;">
+        <i data-lucide="search" style="width:15px;height:15px;"></i> Найти
+      </button>
+      <a th:href="@{/admin/users}" class="btn-ghost-tkg" style="display:flex;align-items:center;gap:6px;"
+         th:if="${q != null and q != ''}">
+        <i data-lucide="x" style="width:14px;height:14px;"></i> Сбросить
+      </a>
+    </form>
+
+    <div th:if="${q != null and q != ''}" style="margin-bottom:12px;font-size:.88rem;color:#6B7280;">
+      Результаты поиска по: <strong th:text="${q}"></strong>
+      — найдено <span th:text="${#lists.size(users)}"></span> пользователей
+    </div>
+
+    <div class="tkg-card">
+      <div class="tkg-card-header" style="justify-content:space-between;">
+        <span><i data-lucide="users" style="width:15px;height:15px;margin-right:6px;"></i> Все пользователи</span>
+        <span class="badge-tkg badge-primary" th:text="${#lists.size(users)} + ' чел.'"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tkg-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Имя</th><th>Email</th><th>Телефон</th><th>Роль</th><th>Дата рег.</th><th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="u : ${users}">
+              <td style="color:#9CA3AF;font-weight:600;" th:text="${u.id}"></td>
+              <td style="font-weight:600;" th:text="${u.fullName}"></td>
+              <td style="font-size:.88rem;" th:text="${u.email}"></td>
+              <td style="font-size:.85rem;color:#6B7280;" th:text="${u.phone ?: '—'}"></td>
+              <td>
+                <span th:switch="${u.role.name()}">
+                  <span th:case="'ADMIN'" class="badge-tkg badge-danger">ADMIN</span>
+                  <span th:case="'OPERATOR'" class="badge-tkg badge-primary">OPERATOR</span>
+                  <span th:case="*" class="badge-tkg badge-gray">TOURIST</span>
+                </span>
+              </td>
+              <td style="font-size:.85rem;color:#6B7280;" th:text="${#temporals.format(u.createdAt,'dd.MM.yyyy')}"></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <!-- Change role form -->
+                  <form th:action="@{/admin/users/{id}/role(id=${u.id})}" method="post"
+                        style="display:flex;align-items:center;gap:6px;">
+                    <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}">
+                    <select name="role" class="role-select"
+                            onchange="this.form.submit()"
+                            th:title="'Изменить роль'">
+                      <option value="TOURIST" th:selected="${u.role.name() == 'TOURIST'}">TOURIST</option>
+                      <option value="OPERATOR" th:selected="${u.role.name() == 'OPERATOR'}">OPERATOR</option>
+                      <option value="ADMIN" th:selected="${u.role.name() == 'ADMIN'}">ADMIN</option>
+                    </select>
+                  </form>
+                  <!-- Delete form -->
+                  <form th:action="@{/admin/users/{id}/delete(id=${u.id})}" method="post"
+                        onsubmit="return confirm('Удалить пользователя ' + /*[[${u.fullName}]]*/ '' + '?')">
+                    <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn-sm-danger" title="Удалить">
+                      <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(users)}">
+              <td colspan="7" style="text-align:center;color:#9CA3AF;padding:32px;">
+                <i data-lucide="search-x" style="width:32px;height:32px;display:block;margin:0 auto 8px;"></i>
+                Пользователи не найдены
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: CMS ===== -->
+  <div class="admin-tab-pane" th:classappend="${activeTab == 'cms'} ? 'active'" id="tab-cms">
+    <form th:action="@{/admin/cms}" method="post" id="cms-form">
+      <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}">
+
+      <!-- Hero section -->
+      <div class="cms-section-card">
+        <div class="cms-section-header">
+          <i data-lucide="layout-template" style="width:17px;height:17px;color:#2563EB;"></i>
+          Hero секция
+        </div>
+        <div class="cms-section-body">
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="cms-field-label">Бейдж / подзаголовок над заголовком</div>
+              <input type="text" name="hero_badge" class="cms-input"
+                     th:value="${settings['hero_badge']}" placeholder="✈ Более 100 направлений">
+            </div>
+            <div class="col-md-12">
+              <div class="cms-field-label">Заголовок Hero</div>
+              <input type="text" name="hero_title" class="cms-input"
+                     th:value="${settings['hero_title']}" placeholder="Откройте Кыргызстан и мир">
+            </div>
+            <div class="col-md-12">
+              <div class="cms-field-label">Подзаголовок Hero</div>
+              <textarea name="hero_subtitle" class="cms-input"
+                        placeholder="Лучшие туры от проверенных операторов..."
+                        th:text="${settings['hero_subtitle']}"></textarea>
+            </div>
+            <div class="col-md-6">
+              <div class="cms-field-label">Текст основной кнопки</div>
+              <input type="text" name="hero_btn_primary" class="cms-input"
+                     th:value="${settings['hero_btn_primary']}" placeholder="Найти тур">
+            </div>
+            <div class="col-md-6">
+              <div class="cms-field-label">Текст второй кнопки</div>
+              <input type="text" name="hero_btn_secondary" class="cms-input"
+                     th:value="${settings['hero_btn_secondary']}" placeholder="Смотреть все туры">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats section -->
+      <div class="cms-section-card">
+        <div class="cms-section-header">
+          <i data-lucide="bar-chart-2" style="width:17px;height:17px;color:#7C3AED;"></i>
+          Статистика
+        </div>
+        <div class="cms-section-body">
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <div class="cms-field-label">Количество туров</div>
+              <input type="text" name="stats_tours" class="cms-input"
+                     th:value="${settings['stats_tours']}" placeholder="500+">
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="cms-field-label">Клиентов</div>
+              <input type="text" name="stats_clients" class="cms-input"
+                     th:value="${settings['stats_clients']}" placeholder="12 000+">
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="cms-field-label">Лет работы</div>
+              <input type="text" name="stats_years" class="cms-input"
+                     th:value="${settings['stats_years']}" placeholder="8">
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="cms-field-label">Рейтинг</div>
+              <input type="text" name="stats_rating" class="cms-input"
+                     th:value="${settings['stats_rating']}" placeholder="4.9">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content section -->
+      <div class="cms-section-card">
+        <div class="cms-section-header">
+          <i data-lucide="file-text" style="width:17px;height:17px;color:#10B981;"></i>
+          Контент
+        </div>
+        <div class="cms-section-body">
+          <div class="row g-3">
+            <div class="col-md-12">
+              <div class="cms-field-label">Заголовок секции «Популярные направления»</div>
+              <input type="text" name="featured_section_title" class="cms-input"
+                     th:value="${settings['featured_section_title']}" placeholder="Популярные направления">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contacts section -->
+      <div class="cms-section-card">
+        <div class="cms-section-header">
+          <i data-lucide="phone" style="width:17px;height:17px;color:#F97316;"></i>
+          Контакты
+        </div>
+        <div class="cms-section-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="cms-field-label">Телефон</div>
+              <input type="text" name="footer_phone" class="cms-input"
+                     th:value="${settings['footer_phone']}" placeholder="+996 312 000 000">
+            </div>
+            <div class="col-md-4">
+              <div class="cms-field-label">Email</div>
+              <input type="text" name="footer_email" class="cms-input"
+                     th:value="${settings['footer_email']}" placeholder="info@tourkg.com">
+            </div>
+            <div class="col-md-4">
+              <div class="cms-field-label">Адрес</div>
+              <input type="text" name="footer_address" class="cms-input"
+                     th:value="${settings['footer_address']}" placeholder="г. Бишкек, пр. Чуй 155">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save bar -->
+      <div class="cms-save-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button type="submit" class="btn-accent-tkg" style="display:flex;align-items:center;gap:8px;">
+            <i data-lucide="save" style="width:16px;height:16px;"></i>
+            Сохранить изменения
+          </button>
+          <span style="font-size:.85rem;color:#9CA3AF;">Изменения применяются мгновенно на сайте</span>
+        </div>
+      </div>
+
+    </form>
+  </div><!-- end cms tab -->
+
+</div><!-- end container -->
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script th:src="@{/js/custom.js}"></script>
+<script>
+  lucide.createIcons();
+
+  function switchTab(name) {
+    document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('tab-btn-' + name).classList.add('active');
+
+    // Update URL so refresh stays on same tab
+    const url = new URL(window.location.href);
+    if (name === 'dashboard') {
+      window.history.replaceState({}, '', '/admin');
+    } else if (name === 'users') {
+      window.history.replaceState({}, '', '/admin/users');
+    } else if (name === 'cms') {
+      window.history.replaceState({}, '', '/admin/cms');
+    }
+  }
+</script>
+</body>
+</html>

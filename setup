@@ -1,0 +1,13 @@
+
+ - Установите JDK 17+.
+ - File → Open → выберите корень проекта (build.gradle.kts). При импорте выберите Gradle Use Gradle wrapper и задайте Project SDK.
+ - Запуск: Gradle → Tasks → bootRun или в терминале проекта: ./gradlew bootRun.
+ - Сборка jar: ./gradlew build && java -jar build/libs/*.jar.
+
+База данных (рекомендуется Docker)
+
+ - Из корня проекта: docker-compose up -d (поднимет Postgres).
+ - По умолчанию приложение ожидает: jdbc:postgresql://localhost:5433/touragency (user: touragency, pass: touragency123).
+ - Если ставите Postgres локально — создайте базу/пользователя с этими данными или поправьте src/main/resources/application.properties.
+
+Примечание: spring.jpa.hibernate.ddl-auto=update автоматически создаст таблицы при старте.

@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: touragency-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: touragency
+      POSTGRES_USER: touragency
+      POSTGRES_PASSWORD: touragency123
+    ports:
+      - "5433:5432"
+    volumes:
+      - touragency_pgdata:/var/lib/postgresql/data
+
+volumes:
+  touragency_pgdata:

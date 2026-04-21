@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Редактировать тур — TourKG</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/custom.css}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div style="background:#fff;border-bottom:1px solid #E5E7EB;padding:24px 0;">
+  <div class="container d-flex align-items-center gap-3">
+    <a th:href="@{/operator}" style="color:#6B7280;text-decoration:none;font-size:.9rem;">← Назад</a>
+    <h1 style="font-size:1.4rem;font-weight:800;margin:0;">Редактировать тур</h1>
+  </div>
+</div>
+
+<div class="container" style="padding:32px 12px;max-width:900px;">
+  <div th:if="${success}" class="tkg-alert tkg-alert-success">✅ <span th:text="${success}"></span></div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="tkg-card">
+        <div class="tkg-card-header">Основная информация</div>
+        <div class="tkg-card-body">
+          <form th:action="@{/operator/tours/{id}/update(id=${tour.id})}" method="post" enctype="multipart/form-data">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Название *</label>
+                <input type="text" name="title" class="form-control" required th:value="${tour.title}">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Описание *</label>
+                <textarea name="description" class="form-control" rows="4" required th:text="${tour.description}"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Направление *</label>
+                <input type="text" name="destination" class="form-control" required th:value="${tour.destination}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Страна *</label>
+                <input type="text" name="country" class="form-control" required th:value="${tour.country}">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Длительность (дни)</label>
+                <input type="number" name="durationDays" class="form-control" min="1" th:value="${tour.durationDays}">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Цена (сом)</label>
+                <input type="number" name="price" class="form-control" min="0" step="100" th:value="${tour.price}">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Категория</label>
+                <select name="category" class="form-select">
+                  <option th:each="cat : ${categories}"
+                          th:value="${cat.name()}"
+                          th:selected="${tour.category == cat}"
+                          th:text="${cat.name()}"></option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Обновить фото обложки</label>
+                <div class="photo-upload-zone" onclick="document.getElementById('editCoverInput').click()">
+                  <div th:if="${tour.coverImage != null}">
+                    <img th:src="@{/tours/{id}/cover(id=${tour.id})}" loading="lazy" decoding="async" style="max-height:120px;border-radius:8px;margin-bottom:8px;" alt="">
+                    <div class="upload-text" style="margin-top:8px;">Нажмите для замены фото</div>
+                  </div>
+                  <div th:unless="${tour.coverImage != null}">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Нажмите для загрузки фото</div>
+                  </div>
+                </div>
+                <input type="file" id="editCoverInput" name="coverImage" accept="image/*" style="display:none;"
+                       onchange="previewImage(this,'editUploadZone','editPreviewImg')">
+                <img id="editPreviewImg" class="photo-preview" loading="lazy" decoding="async" alt="">
+              </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+              <a th:href="@{/operator}" class="btn-ghost-tkg flex-fill justify-content-center">Отмена</a>
+              <button type="submit" class="btn-primary-tkg flex-fill justify-content-center">💾 Сохранить изменения</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Add date -->
+      <div class="tkg-card">
+        <div class="tkg-card-header">📅 Добавить дату</div>
+        <div class="tkg-card-body">
+          <form th:action="@{/operator/tours/{id}/dates(id=${tour.id})}" method="post">
+            <div class="mb-3">
+              <label class="form-label fw-semibold" style="font-size:.82rem;">Дата отправления</label>
+              <input type="date" name="departureDate" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold" style="font-size:.82rem;">Дата возвращения</label>
+              <input type="date" name="returnDate" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold" style="font-size:.82rem;">Мест всего</label>
+              <input type="number" name="totalSeats" class="form-control" value="20" min="1">
+            </div>
+            <button type="submit" class="btn-primary-tkg w-100 justify-content-center">+ Добавить</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="tkg-card mt-3" style="border-color:#FECACA;">
+        <div class="tkg-card-header" style="background:#FEF2F2;color:#991B1B;">⚠️ Опасная зона</div>
+        <div class="tkg-card-body">
+          <form th:action="@{/operator/tours/{id}/delete(id=${tour.id})}" method="post"
+                onsubmit="return confirm('Удалить тур безвозвратно?')">
+            <button type="submit" style="width:100%;background:#EF4444;color:#fff;border:none;border-radius:10px;padding:10px;font-weight:600;cursor:pointer;transition:.2s;"
+                    onmouseover="this.style.background='#DC2626'" onmouseout="this.style.background='#EF4444'">
+              🗑 Удалить тур
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>

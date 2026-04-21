@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Кабинет оператора — TourKG</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/custom.css}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div style="background:#fff;border-bottom:1px solid #E5E7EB;padding:24px 0;">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div>
+      <h1 style="font-size:1.5rem;font-weight:800;margin:0;">Кабинет оператора</h1>
+      <div style="font-size:.88rem;color:#6B7280;margin-top:4px;" th:text="${operator.fullName} + ' · ' + ${operator.email}"></div>
+    </div>
+    <button class="btn-accent-tkg" data-bs-toggle="modal" data-bs-target="#addTourModal">
+      <i data-lucide="plus" style="width:16px;height:16px;margin-right:4px;"></i> Добавить тур
+    </button>
+  </div>
+</div>
+
+<div class="container" style="padding:32px 12px;">
+
+  <!-- Flash messages -->
+  <div th:if="${success}" class="tkg-alert tkg-alert-success">
+    <i data-lucide="check-circle" style="width:16px;height:16px;"></i>
+    <span th:text="${success}"></span>
+  </div>
+  <div th:if="${error}" class="tkg-alert tkg-alert-danger">
+    <i data-lucide="alert-circle" style="width:16px;height:16px;"></i>
+    <span th:text="${error}"></span>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="map" style="width:32px;height:32px;color:#2563EB;"></i></div>
+        <div class="stat-value counter-anim" th:data-target="${tours.size()}" th:text="${tours.size()}"></div>
+        <div class="stat-name">Мои туры</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="ticket" style="width:32px;height:32px;color:#7C3AED;"></i></div>
+        <div class="stat-value counter-anim" th:data-target="${bookingCount}" th:text="${bookingCount}"></div>
+        <div class="stat-name">Бронирований</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="star" style="width:32px;height:32px;color:#F59E0B;"></i></div>
+        <div class="stat-value" th:text="${avgRating != null ? #numbers.formatDecimal(avgRating, 1, 'POINT', 1, 'POINT') : '—'}"></div>
+        <div class="stat-name">Средний рейтинг</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card stat-card-hover">
+        <div class="stat-icon"><i data-lucide="check-circle" style="width:32px;height:32px;color:#10B981;"></i></div>
+        <div class="stat-value counter-anim" th:data-target="${activeTourCount}" th:text="${activeTourCount}"></div>
+        <div class="stat-name">Активных туров</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-0" id="opTabs" style="border-bottom:2px solid #E5E7EB;">
+    <li class="nav-item">
+      <a class="nav-link active" data-bs-toggle="tab" href="#tabTours"
+         style="font-weight:600;color:#6B7280;border:none;padding:12px 20px;display:flex;align-items:center;gap:6px;">
+        <i data-lucide="map" style="width:16px;height:16px;"></i> Мои туры
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-bs-toggle="tab" href="#tabBookings"
+         style="font-weight:600;color:#6B7280;border:none;padding:12px 20px;display:flex;align-items:center;gap:6px;">
+        <i data-lucide="ticket" style="width:16px;height:16px;"></i> Входящие брони
+        <span class="badge-tkg badge-primary ms-1" th:text="${bookings.size()}"></span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="tab-content" style="background:#fff;border:1px solid #E5E7EB;border-top:none;border-radius:0 0 12px 12px;">
+
+    <!-- TOURS TAB -->
+    <div class="tab-pane fade show active" id="tabTours">
+      <div th:if="${tours.empty}" style="padding:48px;text-align:center;color:#6B7280;">
+        <i data-lucide="map" style="width:48px;height:48px;margin-bottom:12px;opacity:.3;"></i>
+        <div style="font-weight:600;margin-bottom:8px;">Туров пока нет</div>
+        <button class="btn-accent-tkg" data-bs-toggle="modal" data-bs-target="#addTourModal">Добавить первый тур</button>
+      </div>
+      <div th:if="${!tours.empty}" style="overflow-x:auto;">
+        <table class="tkg-table">
+          <thead>
+            <tr>
+              <th>Тур</th>
+              <th>Направление</th>
+              <th>Цена</th>
+              <th>Статус</th>
+              <th>Рейтинг</th>
+              <th style="text-align:right;">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="t : ${tours}">
+              <td>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:48px;height:48px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <img th:if="${t.coverImage != null}" th:src="@{/tours/{id}/cover(id=${t.id})}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" alt="">
+                    <span th:unless="${t.coverImage != null}" th:switch="${t.category.name()}">
+                      <i th:case="'BEACH'" data-lucide="umbrella" style="width:20px;height:20px;color:#fff;"></i>
+                      <i th:case="'MOUNTAIN'" data-lucide="mountain" style="width:20px;height:20px;color:#fff;"></i>
+                      <i th:case="'CITY'" data-lucide="building-2" style="width:20px;height:20px;color:#fff;"></i>
+                      <i th:case="'ADVENTURE'" data-lucide="tent" style="width:20px;height:20px;color:#fff;"></i>
+                      <i th:case="'CULTURAL'" data-lucide="landmark" style="width:20px;height:20px;color:#fff;"></i>
+                      <i th:case="*" data-lucide="plane" style="width:20px;height:20px;color:#fff;"></i>
+                    </span>
+                  </div>
+                  <div>
+                    <a th:href="@{/tours/{id}(id=${t.id})}" style="font-weight:700;font-size:.9rem;color:#111827;text-decoration:none;" th:text="${t.title}"></a>
+                    <div style="font-size:.78rem;color:#6B7280;" th:text="${t.durationDays} + ' дней'"></div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-size:.88rem;" th:text="${t.destination} + ', ' + ${t.country}"></td>
+              <td style="font-weight:700;" th:text="${#numbers.formatDecimal(t.price,0,'COMMA',0,'POINT')} + ' сом'"></td>
+              <td>
+                <span th:switch="${t.status.name()}">
+                  <span th:case="'ACTIVE'" class="badge-tkg badge-success">Активен</span>
+                  <span th:case="'DRAFT'" class="badge-tkg badge-warning">Черновик</span>
+                  <span th:case="*" class="badge-tkg badge-gray" th:text="${t.status}"></span>
+                </span>
+              </td>
+              <td>
+                <span th:if="${t.reviewCount > 0}" style="font-size:.88rem;display:flex;align-items:center;gap:3px;">
+                  <i data-lucide="star" style="width:13px;height:13px;color:#F59E0B;"></i>
+                  <span th:text="${#numbers.formatDecimal(t.rating,1,'POINT',1,'POINT')}"></span>
+                </span>
+                <span th:if="${t.reviewCount == 0}" style="color:#9CA3AF;font-size:.85rem;">—</span>
+              </td>
+              <td style="text-align:right;">
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                  <a th:href="@{/operator/tours/{id}/edit(id=${t.id})}"
+                     style="background:#EFF6FF;color:#2563EB;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:.2s;"
+                     onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#EFF6FF'">
+                    <i data-lucide="pencil" style="width:13px;height:13px;"></i> Изменить
+                  </a>
+                  <form th:action="@{/operator/tours/{id}/delete(id=${t.id})}" method="post" style="margin:0;"
+                        onsubmit="return confirm('Удалить тур «' + this.closest('tr').querySelector('a').textContent + '»?')">
+                    <button type="submit"
+                            style="background:#FEF2F2;color:#EF4444;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:4px;"
+                            onmouseover="this.style.background='#FECACA'" onmouseout="this.style.background='#FEF2F2'">
+                      <i data-lucide="trash-2" style="width:13px;height:13px;"></i> Удалить
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BOOKINGS TAB -->
+    <div class="tab-pane fade" id="tabBookings">
+      <div th:if="${bookings.empty}" style="padding:48px;text-align:center;color:#6B7280;">
+        <i data-lucide="ticket" style="width:48px;height:48px;margin-bottom:12px;opacity:.3;"></i>
+        <div style="font-weight:600;">Броней пока нет</div>
+      </div>
+      <div th:if="${!bookings.empty}" style="overflow-x:auto;">
+        <table class="tkg-table">
+          <thead>
+            <tr><th>#</th><th>Тур</th><th>Турист</th><th>Дата</th><th>Уч.</th><th>Сумма</th><th>Статус</th></tr>
+          </thead>
+          <tbody>
+            <tr th:each="b : ${bookings}">
+              <td style="font-weight:600;color:#6B7280;" th:text="${b.id}"></td>
+              <td style="font-weight:600;font-size:.88rem;" th:text="${b.tourDate.tour.title}"></td>
+              <td style="font-size:.88rem;" th:text="${b.tourist?.fullName ?: b.tourist?.email}"></td>
+              <td style="font-size:.85rem;" th:text="${#temporals.format(b.tourDate.departureDate,'dd.MM.yy')}"></td>
+              <td th:text="${b.participants}"></td>
+              <td style="font-weight:700;" th:text="${#numbers.formatDecimal(b.totalPrice,0,'COMMA',0,'POINT')} + ' сом'"></td>
+              <td>
+                <span th:switch="${b.status.name()}">
+                  <span th:case="'CONFIRMED'" class="badge-tkg badge-success">Подтверждено</span>
+                  <span th:case="'PENDING'" class="badge-tkg badge-warning">Ожидание</span>
+                  <span th:case="'CANCELLED'" class="badge-tkg badge-danger">Отменено</span>
+                  <span th:case="'COMPLETED'" class="badge-tkg badge-primary">Завершено</span>
+                  <span th:case="*" class="badge-tkg badge-gray" th:text="${b.status}"></span>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TOUR MODAL -->
+<div class="modal fade tkg-modal" id="addTourModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i data-lucide="plus-circle" style="width:18px;height:18px;margin-right:6px;vertical-align:middle;"></i>
+          Новый тур
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/operator/tours}" method="post" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Название тура *</label>
+              <input type="text" name="title" class="form-control" required placeholder="Турция — Анталья 7 ночей All Inclusive">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Описание *</label>
+              <textarea name="description" class="form-control" rows="3" required placeholder="Подробное описание тура, что включено, маршрут..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Направление *</label>
+              <input type="text" name="destination" class="form-control" required placeholder="Анталья">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Страна *</label>
+              <input type="text" name="country" class="form-control" required placeholder="Турция">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Длительность (дни) *</label>
+              <input type="number" name="durationDays" class="form-control" min="1" value="7" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Цена (сом) *</label>
+              <input type="number" name="price" class="form-control" min="0" step="100" required placeholder="45000">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Категория *</label>
+              <select name="category" class="form-select" required>
+                <option th:each="cat : ${categories}" th:value="${cat.name()}"
+                        th:text="${cat.name() == 'BEACH' ? 'Пляж' : cat.name() == 'MOUNTAIN' ? 'Горы' : cat.name() == 'CITY' ? 'Город' : cat.name() == 'ADVENTURE' ? 'Приключения' : cat.name() == 'CULTURAL' ? 'Культура' : cat.name()}">
+                </option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Фотография обложки</label>
+              <div class="photo-upload-zone" id="uploadZone" onclick="document.getElementById('coverImageInput').click()">
+                <div class="upload-icon">
+                  <i data-lucide="camera" style="width:40px;height:40px;opacity:.4;"></i>
+                </div>
+                <div class="upload-text">Нажмите для выбора или перетащите фото<br><small>JPG, PNG до 5MB</small></div>
+              </div>
+              <input type="file" id="coverImageInput" name="coverImage" accept="image/*" style="display:none;" onchange="previewImage(this,'uploadZone','previewImg')">
+              <img id="previewImg" class="photo-preview" loading="lazy" decoding="async" alt="">
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="button" class="btn-ghost-tkg flex-fill justify-content-center" data-bs-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn-accent-tkg flex-fill justify-content-center">
+              <i data-lucide="check-circle" style="width:16px;height:16px;margin-right:4px;"></i> Создать тур
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script th:src="@{/js/custom.js}"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

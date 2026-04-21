@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TourKG — Онлайн-бронирование туров в Кыргызстане</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/custom.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- HERO -->
+<section class="hero hero-parallax">
+  <div class="container position-relative" style="z-index:1;">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-8">
+        <div class="hero-badge mb-3" th:if="${heroBadge != null and heroBadge != ''}"
+             style="display:inline-block;background:rgba(255,255,255,0.18);color:#fff;border-radius:20px;padding:6px 18px;font-size:.9rem;font-weight:600;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.3);"
+             th:text="${heroBadge}"></div>
+        <div class="hero-title hero-float" th:text="${heroTitle}">Найди свой идеальный тур</div>
+        <div class="hero-subtitle" th:text="${heroSubtitle}">Лучшие туры по Кыргызстану и всему миру. Бронируй онлайн — получи подтверждение мгновенно.</div>
+
+        <div class="search-box mt-4">
+          <form th:action="@{/tours}" method="get" class="d-contents w-100" style="display:contents;">
+            <div class="search-field">
+              <input type="text" name="destination" placeholder="Куда летим?" autocomplete="off">
+            </div>
+            <div class="search-field">
+              <select name="category">
+                <option value="">Категория</option>
+                <option value="BEACH">Пляж</option>
+                <option value="MOUNTAIN">Горы</option>
+                <option value="CITY">Город</option>
+                <option value="ADVENTURE">Приключения</option>
+                <option value="CULTURAL">Культура</option>
+              </select>
+            </div>
+            <div class="search-field">
+              <input type="number" name="maxPrice" placeholder="Бюджет (сом)">
+            </div>
+            <button type="submit" class="search-btn" th:text="${heroBtnPrimary}">Найти туры</button>
+          </form>
+        </div>
+
+        <!-- Popular destinations -->
+        <div class="d-flex gap-2 justify-content-center flex-wrap mt-4" style="animation: slideUp .6s .35s ease both; opacity:0; animation-fill-mode:both;">
+          <a th:href="@{/tours?country=Турция}" class="cat-pill">Турция</a>
+          <a th:href="@{/tours?country=ОАЭ}" class="cat-pill">ОАЭ</a>
+          <a th:href="@{/tours?country=Таиланд}" class="cat-pill">Таиланд</a>
+          <a th:href="@{/tours?country=Кыргызстан}" class="cat-pill">КР</a>
+          <a th:href="@{/tours?country=Италия}" class="cat-pill">Италия</a>
+          <a th:href="@{/tours?country=Египет}" class="cat-pill">Египет</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div th:if="${tours != null and !#lists.isEmpty(tours)}" id="homeCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    <button type="button" th:each="t,iter : ${tours}"
+            data-bs-target="#homeCarousel"
+            th:attr="data-bs-slide-to=${iter.index}"
+            th:classappend="${iter.index == 0} ? ' active' : ''"
+            th:attrappend="aria-label='Slide ' + ${iter.index + 1}"></button>
+  </div>
+  <div class="carousel-inner" style="max-height:420px;overflow:hidden;border-radius:12px;">
+    <div th:each="t,iter : ${tours}" class="carousel-item" th:classappend="${iter.index == 0} ? ' active'">
+      <img th:if="${t.coverImage != null}" th:src="@{/tours/{id}/cover(id=${t.id})}" th:attr="loading=${iter.index == 0} ? 'eager' : 'lazy'" decoding="async" class="d-block w-100" style="height:420px;object-fit:cover;" alt="">
+      <div th:unless="${t.coverImage != null}" class="d-flex align-items-center justify-content-center" style="height:420px;background:#111827;color:#fff;">
+        <span th:switch="${t.category.name()}">
+          <span th:case="'BEACH'"><i data-lucide="umbrella" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+          <span th:case="'MOUNTAIN'"><i data-lucide="mountain" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+          <span th:case="'CITY'"><i data-lucide="building-2" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+          <span th:case="'ADVENTURE'"><i data-lucide="tent" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+          <span th:case="'CULTURAL'"><i data-lucide="landmark" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+          <span th:case="*"><i data-lucide="plane" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+        </span>
+      </div>
+      <div class="carousel-caption d-none d-md-block" style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px;">
+        <h5 th:text="${t.title}">Title</h5>
+        <p th:text="${t.destination}">Destination</p>
+      </div>
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="row">
+      <div class="col-6 stat-item">
+        <div class="stat-num" th:text="${statsTours}">500+</div>
+        <div class="stat-label">Туров</div>
+      </div>
+      <div class="col-6 stat-item">
+        <div class="stat-num" th:text="${statsClients}">12 000+</div>
+        <div class="stat-label">Зарегистрированных туристов</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURED TOURS -->
+<section style="padding:64px 0;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <div class="section-title" th:text="${featuredSectionTitle}">Популярные направления</div>
+        <div class="section-subtitle">Лучшие туры по отзывам и бронированиям</div>
+      </div>
+      <a th:href="@{/tours}" class="btn-ghost-tkg" style="font-size:.85rem;" th:text="${heroBtnSecondary}">Все туры →</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 cards-grid">
+      <div class="col" th:each="tour : ${tours}">
+        <a th:href="@{/tours/{id}(id=${tour.id})}" class="tour-card">
+          <div class="tour-card-img">
+            <img th:if="${tour.coverImage != null}" th:src="@{/tours/{id}/cover(id=${tour.id})}" loading="lazy" decoding="async" alt="">
+            <span th:unless="${tour.coverImage != null}" th:switch="${tour.category.name()}">
+              <span th:case="'BEACH'"><i data-lucide="umbrella" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+              <span th:case="'MOUNTAIN'"><i data-lucide="mountain" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+              <span th:case="'CITY'"><i data-lucide="building-2" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+              <span th:case="'ADVENTURE'"><i data-lucide="tent" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+              <span th:case="'CULTURAL'"><i data-lucide="landmark" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+              <span th:case="*"><i data-lucide="plane" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
+            </span>
+            <span class="tour-card-badge" th:text="${tour.durationDays} + ' дн.'"></span>
+          </div>
+          <div class="tour-card-body">
+            <div class="tour-card-country" th:text="${tour.country}"></div>
+            <div class="tour-card-title" th:text="${tour.title}"></div>
+            <div class="tour-card-meta">
+              <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> <span th:text="${tour.destination}"></span></span>
+              <span th:if="${tour.reviewCount > 0}"><i data-lucide="star" style="width:12px;height:12px;color:#F59E0B;"></i> <span th:text="${#numbers.formatDecimal(tour.rating,1,'POINT',1,'POINT')}"></span></span>
+            </div>
+            <div class="tour-card-footer">
+              <div>
+                <div class="tour-card-price" th:text="${#numbers.formatDecimal(tour.price,0,'COMMA',0,'POINT')} + ' сом'"></div>
+                <div class="tour-card-price-label">за человека</div>
+              </div>
+              <div class="tour-card-btn">Подробнее</div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section style="padding:0 0 64px;">
+  <div class="container">
+    <div class="mb-4">
+      <div class="section-title">Выбери по интересам</div>
+    </div>
+    <div class="row g-3">
+      <div class="col-6 col-md-4 col-lg-2">
+        <a th:href="@{/tours?category=BEACH}" class="cat-card" style="background:linear-gradient(135deg,#0EA5E9,#0284C7);">
+          <i data-lucide="umbrella" class="cat-card-icon"></i>
+          <div class="cat-card-label">Пляж</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <a th:href="@{/tours?category=MOUNTAIN}" class="cat-card" style="background:linear-gradient(135deg,#10B981,#059669);">
+          <i data-lucide="mountain" class="cat-card-icon"></i>
+          <div class="cat-card-label">Горы</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <a th:href="@{/tours?category=CITY}" class="cat-card" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);">
+          <i data-lucide="building-2" class="cat-card-icon"></i>
+          <div class="cat-card-label">Город</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <a th:href="@{/tours?category=ADVENTURE}" class="cat-card" style="background:linear-gradient(135deg,#F97316,#EA580C);">
+          <i data-lucide="tent" class="cat-card-icon"></i>
+          <div class="cat-card-label">Приключения</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <a th:href="@{/tours?category=CULTURAL}" class="cat-card" style="background:linear-gradient(135deg,#EC4899,#DB2777);">
+          <i data-lucide="landmark" class="cat-card-icon"></i>
+          <div class="cat-card-label">Культура</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-4 col-lg-2">
+        <a th:href="@{/tours}" class="cat-card" style="background:linear-gradient(135deg,#2563EB,#1D4ED8);">
+          <i data-lucide="plane" class="cat-card-icon"></i>
+          <div class="cat-card-label">Все туры</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section style="background:#fff;padding:64px 0;border-top:1px solid #E5E7EB;">
+  <div class="container">
+    <div class="text-center mb-4">
+      <div class="section-title">Почему выбирают TourKG?</div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="why-card stat-card-hover">
+          <i data-lucide="shield-check" class="why-icon"></i>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Безопасно</div>
+          <div style="font-size:.85rem;color:#6B7280;">Все операторы проверены. Ваши данные защищены.</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="why-card stat-card-hover">
+          <i data-lucide="zap" class="why-icon"></i>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Мгновенно</div>
+          <div style="font-size:.85rem;color:#6B7280;">Подтверждение бронирования приходит сразу.</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="why-card stat-card-hover">
+          <i data-lucide="credit-card" class="why-icon"></i>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Местная оплата</div>
+          <div style="font-size:.85rem;color:#6B7280;">MBank, ElCard и банковские карты КР.</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="why-card stat-card-hover">
+          <i data-lucide="smartphone" class="why-icon"></i>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">На любом устройстве</div>
+          <div style="font-size:.85rem;color:#6B7280;">Сайт отлично работает на смартфоне и ПК.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script th:src="@{/js/custom.js}"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

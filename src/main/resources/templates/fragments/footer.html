@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="tkg-footer">
+  <div class="container">
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="tkg-footer-logo">Tour<span>KG</span></div>
+        <p style="font-size:.88rem;color:#9CA3AF;line-height:1.6;">
+          Первая платформа онлайн-бронирования туров, созданная специально для Кыргызстана.
+        </p>
+      </div>
+      <div class="col-md-2">
+        <div style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">Туры</div>
+        <ul class="tkg-footer-links">
+          <li><a th:href="@{/tours?category=BEACH}">Пляжный отдых</a></li>
+          <li><a th:href="@{/tours?category=MOUNTAIN}">Горный туризм</a></li>
+          <li><a th:href="@{/tours?category=CULTURAL}">Культурные туры</a></li>
+          <li><a th:href="@{/tours?country=Кыргызстан}">Туры по КР</a></li>
+        </ul>
+      </div>
+      <div class="col-md-2">
+        <div style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">Компания</div>
+        <ul class="tkg-footer-links">
+          <li><a href="#">О нас</a></li>
+          <li><a href="#">Контакты</a></li>
+        </ul>
+      </div>
+
+    </div>
+    <hr class="tkg-footer-divider">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <span style="font-size:.82rem;color:#6B7280;">© 2026 TourKG. Все права защищены.</span>
+      <span style="font-size:.82rem;color:#6B7280;">Абдылдаева Элина Майрамбековна БИ(б)-1-22</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
