@@ -20,6 +20,18 @@ class PaymentController(
     // In-memory store: transactionId -> code
     private val pendingTransactions = ConcurrentHashMap<String, String>()
 
+    @GetMapping("/choose")
+    fun choose(@RequestParam bookingId: Long, @RequestParam amount: BigDecimal, model: Model): String {
+        val booking = bookingRepository.findById(bookingId).orElse(null) ?: return "redirect:/cabinet"
+        model.addAttribute("bookingId", bookingId)
+        model.addAttribute("amount", amount)
+        model.addAttribute("booking", booking)
+        model.addAttribute("tour", booking.tourDate?.tour)
+        model.addAttribute("tourDate", booking.tourDate)
+        model.addAttribute("deadline", booking.paymentDeadline)
+        return "payment/choose"
+    }
+
     /**
      * GET /payment/mbank?bookingId={id}&amount={amount}
      * Show the M-Bank payment page

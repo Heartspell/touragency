@@ -36,8 +36,8 @@ class BookingController(
         val tourist = userService.findByEmail(principal.username) ?: return "redirect:/login"
         return try {
             val booking = bookingService.createBooking(request, tourist)
-            // Redirect to M-Bank payment
-            "redirect:/payment/mbank?bookingId=${booking.id}&amount=${booking.totalPrice}"
+            // Redirect to payment method selection
+            "redirect:/payment/choose?bookingId=${booking.id}&amount=${booking.totalPrice}"
         } catch (e: Exception) {
             redirectAttributes.addFlashAttribute("error", e.message)
             "redirect:/booking/new?tourDateId=${request.tourDateId}"

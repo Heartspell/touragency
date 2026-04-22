@@ -13,7 +13,7 @@
       font-size:.93rem; color:#6B7280; cursor:pointer; transition:.18s;
       border-bottom:2px solid transparent; margin-bottom:-2px;
     }
-    .admin-tab-btn.active { color:#2563EB; border-bottom-color:#2563EB; background:#EFF6FF; }
+    .admin-tab-btn.active { color:#7C3AED; border-bottom-color:#7C3AED; background:#F5F3FF; }
     .admin-tab-btn:hover:not(.active) { background:#F3F4F6; color:#374151; }
     .admin-tab-pane { display:none; }
     .admin-tab-pane.active { display:block; }
@@ -30,7 +30,7 @@
       font-size:.93rem; font-family:inherit; transition:border-color .18s;
       background:#FAFAFA;
     }
-    .cms-input:focus { outline:none; border-color:#2563EB; background:#fff; }
+    .cms-input:focus { outline:none; border-color:#7C3AED; background:#fff; }
     textarea.cms-input { resize:vertical; min-height:72px; }
 
     .user-search-form { display:flex; gap:10px; margin-bottom:20px; }
@@ -38,13 +38,13 @@
       flex:1; border:1.5px solid #E5E7EB; border-radius:10px; padding:9px 16px;
       font-size:.93rem; font-family:inherit;
     }
-    .user-search-input:focus { outline:none; border-color:#2563EB; }
+    .user-search-input:focus { outline:none; border-color:#7C3AED; }
 
     .role-select {
       border:1.5px solid #E5E7EB; border-radius:8px; padding:5px 10px;
       font-size:.83rem; font-family:inherit; cursor:pointer;
     }
-    .role-select:focus { outline:none; border-color:#2563EB; }
+    .role-select:focus { outline:none; border-color:#7C3AED; }
 
     .btn-sm-danger {
       background:#FEF2F2; color:#DC2626; border:1.5px solid #FECACA;
@@ -86,7 +86,7 @@
         <a th:href="@{/}" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;background:#F3F4F6;color:#374151;font-size:.85rem;font-weight:600;text-decoration:none;">
           <i data-lucide="home" style="width:14px;height:14px;"></i> Сайт
         </a>
-        <a th:href="@{/tours}" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;background:#EFF6FF;color:#2563EB;font-size:.85rem;font-weight:600;text-decoration:none;">
+        <a th:href="@{/tours}" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;background:#F5F3FF;color:#7C3AED;font-size:.85rem;font-weight:600;text-decoration:none;">
           <i data-lucide="map" style="width:14px;height:14px;"></i> Туры
         </a>
       </div>
@@ -110,7 +110,7 @@
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
       <div class="stat-card stat-card-hover">
-        <div class="stat-icon"><i data-lucide="users" style="width:28px;height:28px;color:#2563EB;"></i></div>
+        <div class="stat-icon"><i data-lucide="users" style="width:28px;height:28px;color:#7C3AED;"></i></div>
         <div class="stat-value" th:text="${userCount}">0</div>
         <div class="stat-name">Пользователей</div>
       </div>
@@ -190,7 +190,7 @@
         </table>
       </div>
       <div style="padding:14px 20px;border-top:1px solid #F3F4F6;">
-        <a th:href="@{/admin/users}" style="font-size:.85rem;color:#2563EB;font-weight:600;text-decoration:none;">
+        <a th:href="@{/admin/users}" style="font-size:.85rem;color:#7C3AED;font-weight:600;text-decoration:none;">
           Управление пользователями →
         </a>
       </div>
@@ -290,7 +290,7 @@
       <!-- Hero section -->
       <div class="cms-section-card">
         <div class="cms-section-header">
-          <i data-lucide="layout-template" style="width:17px;height:17px;color:#2563EB;"></i>
+          <i data-lucide="layout-template" style="width:17px;height:17px;color:#7C3AED;"></i>
           Hero секция
         </div>
         <div class="cms-section-body">

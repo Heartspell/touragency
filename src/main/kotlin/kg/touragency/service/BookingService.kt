@@ -6,8 +6,10 @@ import kg.touragency.entity.BookingStatus
 import kg.touragency.entity.User
 import kg.touragency.repository.BookingRepository
 import kg.touragency.repository.TourDateRepository
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class BookingService(
@@ -32,7 +34,7 @@ class BookingService(
             tourDate = tourDate,
             participants = request.participants,
             totalPrice = tourDate.tour!!.price.multiply(request.participants.toBigDecimal()),
-            status = BookingStatus.CONFIRMED,
+            status = BookingStatus.PENDING,
             notes = request.notes
         )
         return bookingRepository.save(booking)
@@ -50,6 +52,22 @@ class BookingService(
         tourDate.bookedSeats -= booking.participants
         tourDateRepository.save(tourDate)
         bookingRepository.save(booking)
+    }
+
+    @Scheduled(fixedDelay = 60_000)
+    @Transactional
+    fun cancelExpiredBookings() {
+        val now = LocalDateTime.now()
+        val expired = bookingRepository.findByStatusAndPaymentDeadlineBefore(BookingStatus.PENDING, now)
+        for (booking in expired) {
+            booking.status = BookingStatus.CANCELLED
+            val tourDate = booking.tourDate
+            if (tourDate != null) {
+                tourDate.bookedSeats -= booking.participants
+                tourDateRepository.save(tourDate)
+            }
+            bookingRepository.save(booking)
+        }
     }
 
     fun getByTourist(tourist: User): List<Booking> =

@@ -29,5 +29,6 @@ class Booking(
     var status: BookingStatus = BookingStatus.PENDING,
 
     var notes: String = "",
-    var createdAt: LocalDateTime = LocalDateTime.now()
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+    var paymentDeadline: LocalDateTime? = LocalDateTime.now().plusHours(24)
 )

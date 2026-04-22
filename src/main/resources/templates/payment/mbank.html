@@ -3,506 +3,866 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>M-Bank — Оплата</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <title>Оплата — TourKG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #1E0A3C 0%, #3B0764 50%, #581C87 100%);
+      background: #F4F6FA;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
+      padding: 32px 16px 48px;
     }
 
-    /* M-Bank Header */
-    .mbank-header {
-      text-align: center;
-      margin-bottom: 28px;
+    /* ─── Top bar ─── */
+    .top-bar {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
     }
-    .mbank-logo {
-      display: inline-flex;
+    .top-logo {
+      display: flex;
       align-items: center;
       gap: 10px;
-      color: #fff;
+      text-decoration: none;
     }
-    .mbank-logo-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #7C3AED, #A855F7);
-      border-radius: 14px;
+    .top-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #7C3AED, #6D28D9);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
-      box-shadow: 0 4px 20px rgba(124,58,237,.5);
     }
-    .mbank-logo-text {
-      font-size: 1.8rem;
-      font-weight: 900;
-      letter-spacing: -1px;
+    .top-logo-text {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -.3px;
     }
-    .mbank-logo-text span { color: #A855F7; }
-    .mbank-tagline {
-      color: rgba(255,255,255,.55);
-      font-size: .82rem;
-      margin-top: 4px;
-    }
-
-    /* Card */
-    .mbank-card {
-      background: #fff;
-      border-radius: 24px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.4);
-      overflow: hidden;
-    }
-    .mbank-card-header {
-      background: linear-gradient(135deg, #7C3AED, #6B21A8);
-      padding: 24px 28px;
-      color: #fff;
-    }
-    .mbank-merchant {
-      font-size: .78rem;
-      opacity: .75;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-    .mbank-amount {
-      font-size: 2.4rem;
-      font-weight: 900;
-      letter-spacing: -1px;
-    }
-    .mbank-amount-label {
-      font-size: .82rem;
-      opacity: .7;
-      margin-top: 2px;
-    }
-    .mbank-booking-id {
-      display: inline-block;
-      background: rgba(255,255,255,.15);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: .78rem;
-      margin-top: 10px;
-    }
-    .mbank-card-body { padding: 28px; }
-
-    /* Progress steps */
-    .mbank-steps {
+    .top-secure {
       display: flex;
       align-items: center;
-      margin-bottom: 28px;
+      gap: 6px;
+      font-size: .8rem;
+      color: #9CA3AF;
     }
-    .mbank-step {
+
+    /* ─── Main layout ─── */
+    .checkout-wrap {
+      width: 100%;
+      max-width: 960px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 760px) {
+      .checkout-wrap { grid-template-columns: 1fr; }
+      .order-col { order: -1; }
+    }
+
+    /* ─── Payment card ─── */
+    .pay-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+    .pay-card-header {
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid #F3F4F6;
+    }
+    .pay-card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    /* ─── Method tabs ─── */
+    .method-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .method-tab {
+      flex: 1;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 12px 10px;
+      cursor: pointer;
+      background: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      flex: 1;
+      gap: 6px;
+      transition: all .18s ease;
+      position: relative;
     }
-    .mbank-step-dot {
-      width: 28px;
+    .method-tab:hover { border-color: #C4B5FD; }
+    .method-tab.active {
+      border-color: #7C3AED;
+      background: #FAFAFF;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.08);
+    }
+    .method-tab.active::after {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border-radius: 12px;
+      border: 2px solid #7C3AED;
+      pointer-events: none;
+    }
+    .tab-logo {
       height: 28px;
-      border-radius: 50%;
+      object-fit: contain;
+    }
+    .tab-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    .method-tab.active .tab-label { color: #7C3AED; }
+
+    /* MBank logo pill */
+    .mbank-logo-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: .75rem;
-      font-weight: 700;
-      transition: all .3s ease;
+      gap: 5px;
     }
-    .mbank-step-dot.active  { background: #7C3AED; color: #fff; box-shadow: 0 0 0 4px rgba(124,58,237,.2); }
-    .mbank-step-dot.done    { background: #10B981; color: #fff; }
-    .mbank-step-dot.waiting { background: #E5E7EB; color: #9CA3AF; }
-    .mbank-step-label { font-size: .7rem; color: #6B7280; font-weight: 500; text-align: center; }
-    .mbank-step-line  { flex: 1; height: 2px; background: #E5E7EB; margin: 0 6px; margin-bottom: 18px; transition: background .3s ease; }
-    .mbank-step-line.done { background: #10B981; }
+    .mbank-logo-row img { height: 22px; }
+    .mbank-logo-row span {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #00A651;
+      letter-spacing: -.3px;
+    }
 
-    /* Form inputs */
-    .mbank-label {
+    /* Elcard logo */
+    .elcard-logo {
+      font-size: .9rem;
+      font-weight: 900;
+      letter-spacing: -.2px;
+    }
+    .elcard-logo .el { color: #1B4FD8; }
+    .elcard-logo .card { color: #D97706; }
+
+    /* ─── Pay card body ─── */
+    .pay-card-body {
+      padding: 24px 28px 28px;
+    }
+
+    /* ─── Panel switch ─── */
+    .pay-panel { display: none; }
+    .pay-panel.active { display: block; }
+
+    /* ─── Form fields ─── */
+    .field-group { margin-bottom: 16px; }
+    .field-label {
       display: block;
-      font-size: .82rem;
+      font-size: .8rem;
       font-weight: 600;
       color: #374151;
       margin-bottom: 6px;
     }
-    .mbank-input {
+    .field-row {
+      display: flex;
+      gap: 12px;
+    }
+    .field-row .field-group { flex: 1; }
+
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap input,
+    .input-wrap select {
       width: 100%;
       border: 2px solid #E5E7EB;
-      border-radius: 12px;
-      padding: 13px 16px;
-      font-size: 1rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color .2s ease, box-shadow .2s ease;
-      color: #111827;
-    }
-    .mbank-input:focus {
-      border-color: #7C3AED;
-      box-shadow: 0 0 0 4px rgba(124,58,237,.1);
-    }
-    .phone-wrapper {
-      display: flex;
-      align-items: center;
-      border: 2px solid #E5E7EB;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-    .phone-wrapper:focus-within {
-      border-color: #7C3AED;
-      box-shadow: 0 0 0 4px rgba(124,58,237,.1);
-    }
-    .phone-prefix {
-      background: #F9FAFB;
-      padding: 13px 14px;
+      border-radius: 10px;
+      padding: 12px 14px;
       font-size: .95rem;
+      font-family: inherit;
+      color: #111827;
+      background: #FAFAFA;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      appearance: none;
+    }
+    .input-wrap input:focus,
+    .input-wrap select:focus {
+      border-color: #7C3AED;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(124,58,237,.08);
+    }
+    .input-wrap input::placeholder { color: #D1D5DB; }
+    .input-wrap .input-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9CA3AF;
+      pointer-events: none;
+    }
+
+    /* Card number with logos */
+    .card-num-wrap {
+      position: relative;
+    }
+    .card-num-wrap input {
+      padding-right: 90px;
+      letter-spacing: .1em;
+    }
+    .card-brands {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .brand-visa {
+      font-size: .75rem;
+      font-weight: 900;
+      color: #1A1F71;
+      letter-spacing: -.3px;
+      font-style: italic;
+    }
+
+    /* Phone input */
+    .phone-group {
+      display: flex;
+      border: 2px solid #E5E7EB;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #FAFAFA;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .phone-group:focus-within {
+      border-color: #7C3AED;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(124,58,237,.08);
+    }
+    .phone-code {
+      padding: 12px 14px;
+      background: #F3F4F6;
+      font-size: .9rem;
       font-weight: 700;
       color: #374151;
       border-right: 2px solid #E5E7EB;
       white-space: nowrap;
+      flex-shrink: 0;
     }
-    .phone-wrapper input {
-      border: none;
-      outline: none;
+    .phone-group input {
       flex: 1;
-      padding: 13px 14px;
-      font-size: 1rem;
-      font-family: inherit;
-      color: #111827;
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
     }
 
-    /* OTP input */
-    .otp-inputs {
+    /* OTP */
+    .otp-row {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
-      margin: 8px 0 16px;
+      margin: 8px 0 20px;
     }
-    .otp-input {
-      width: 60px;
-      height: 64px;
+    .otp-box {
+      width: 56px;
+      height: 58px;
       border: 2px solid #E5E7EB;
-      border-radius: 12px;
+      border-radius: 10px;
       text-align: center;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: #7C3AED;
       outline: none;
       transition: border-color .2s, box-shadow .2s;
+      font-family: inherit;
+      background: #FAFAFA;
     }
-    .otp-input:focus {
+    .otp-box:focus {
       border-color: #7C3AED;
+      background: #fff;
       box-shadow: 0 0 0 4px rgba(124,58,237,.1);
     }
 
-    /* Buttons */
-    .mbank-btn {
-      width: 100%;
-      background: linear-gradient(135deg, #7C3AED, #6B21A8);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 15px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .2s ease;
+    /* Alert */
+    .pay-alert {
+      display: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: .82rem;
+      font-weight: 500;
+      margin-bottom: 14px;
+    }
+    .pay-alert.err { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+    .pay-alert.info { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+
+    /* Hint */
+    .pay-hint {
+      background: #F5F3FF;
+      border: 1px solid #DDD6FE;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: .78rem;
+      color: #5B21B6;
+      margin-bottom: 16px;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      align-items: flex-start;
       gap: 8px;
-      font-family: inherit;
+      line-height: 1.5;
     }
-    .mbank-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(124,58,237,.4);
-    }
-    .mbank-btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .mbank-btn-outline {
-      background: transparent;
-      color: #7C3AED;
-      border: 2px solid #7C3AED;
-      border-radius: 12px;
-      padding: 12px;
-      font-size: .95rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all .2s ease;
-      width: 100%;
-      margin-top: 10px;
-    }
-    .mbank-btn-outline:hover { background: #F5F3FF; }
 
     /* Spinner */
-    .mbank-spinner {
+    .spin-wrap {
       display: none;
       text-align: center;
-      padding: 32px 0;
+      padding: 20px 0 8px;
     }
-    .spinner-ring {
-      width: 52px;
-      height: 52px;
-      border: 4px solid #E9D5FF;
+    .spin-ring {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #EDE9FE;
       border-top-color: #7C3AED;
       border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin: 0 auto 16px;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 10px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner-text {
-      font-size: .95rem;
-      font-weight: 600;
-      color: #374151;
-    }
-    .spinner-sub {
-      font-size: .8rem;
-      color: #9CA3AF;
-      margin-top: 4px;
-    }
+    .spin-text { font-size: .88rem; color: #6B7280; font-weight: 500; }
 
-    /* Success/Error states */
-    .mbank-result {
+    /* Step helpers */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* Result */
+    .result-box {
       display: none;
       text-align: center;
-      padding: 20px 0;
+      padding: 16px 0 4px;
     }
-    .result-icon {
+    .result-circle {
       width: 68px;
       height: 68px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 16px;
-      font-size: 28px;
+      margin: 0 auto 14px;
     }
-    .result-icon.success { background: #D1FAE5; }
-    .result-icon.error   { background: #FEE2E2; }
-    .result-title {
-      font-size: 1.2rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-    .result-msg {
-      font-size: .88rem;
-      color: #6B7280;
-      margin-bottom: 20px;
-    }
+    .result-circle.ok  { background: #D1FAE5; }
+    .result-circle.err { background: #FEE2E2; }
+    .result-h { font-size: 1.05rem; font-weight: 800; margin-bottom: 6px; }
+    .result-p { font-size: .85rem; color: #6B7280; margin-bottom: 20px; line-height: 1.5; }
 
-    /* Hint */
-    .mbank-hint {
-      background: #F5F3FF;
-      border: 1px solid #DDD6FE;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: .8rem;
-      color: #5B21B6;
-      margin-bottom: 20px;
+    /* Test hint */
+    .test-hint {
+      text-align: center;
+      font-size: .72rem;
+      color: #9CA3AF;
+      margin-bottom: 14px;
+    }
+    .test-hint strong { color: #7C3AED; }
+
+    /* ─── Pay button ─── */
+    .btn-pay {
+      width: 100%;
+      padding: 15px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn-pay-purple {
+      background: linear-gradient(135deg, #7C3AED, #6B21A8);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(124,58,237,.3);
+    }
+    .btn-pay-purple:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(124,58,237,.4);
+      color: #fff;
+    }
+    .btn-pay-green {
+      background: linear-gradient(135deg, #00A651, #00C661);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0,166,81,.3);
+    }
+    .btn-pay-green:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,166,81,.4);
+    }
+    .btn-pay:disabled { opacity: .55; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    .btn-ghost {
+      width: 100%;
+      background: transparent;
+      color: #6B7280;
+      border: none;
+      border-radius: 12px;
+      padding: 11px;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 8px;
+      transition: color .15s;
+    }
+    .btn-ghost:hover { color: #374151; }
+
+    /* ─── Trust badges ─── */
+    .trust-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid #F3F4F6;
+    }
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .72rem;
+      color: #9CA3AF;
+      font-weight: 500;
+    }
+    .trust-badge svg { flex-shrink: 0; }
+
+    /* ─── Order summary ─── */
+    .order-col {}
+    .order-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.07);
+      padding: 24px;
+    }
+    .order-header {
+      font-size: .78rem;
+      font-weight: 700;
+      color: #9CA3AF;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 14px;
+    }
+    .order-tour-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+    .order-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .order-meta-row {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: .83rem;
+      color: #6B7280;
     }
-
-    /* Alert */
-    .mbank-alert {
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: .88rem;
-      font-weight: 500;
-      margin-bottom: 16px;
-      display: none;
+    .order-meta-row svg { flex-shrink: 0; color: #9CA3AF; }
+    .order-divider {
+      height: 1px;
+      background: #F3F4F6;
+      margin: 16px 0;
     }
-    .mbank-alert.error   { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
-    .mbank-alert.success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
-
-    /* Security badge */
-    .mbank-security {
+    .order-total-row {
       display: flex;
       align-items: center;
-      gap: 6px;
-      justify-content: center;
-      color: rgba(255,255,255,.5);
-      font-size: .75rem;
-      margin-top: 16px;
+      justify-content: space-between;
     }
+    .order-total-label { font-size: .85rem; color: #6B7280; font-weight: 500; }
+    .order-total-amount {
+      font-size: 1.6rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #7C3AED, #6D28D9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .order-deadline {
+      margin-top: 14px;
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: .78rem;
+      color: #92400E;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+    .countdown {
+      font-weight: 800;
+      color: #D97706;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .8rem;
+      color: #9CA3AF;
+      text-decoration: none;
+      margin-top: 16px;
+      transition: color .15s;
+    }
+    .back-link:hover { color: #7C3AED; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="mbank-header">
-    <div class="mbank-logo">
-      <div class="mbank-logo-icon">M</div>
-      <div>
-        <div class="mbank-logo-text">M<span>-Bank</span></div>
-      </div>
+<!-- Top bar -->
+<div class="top-bar">
+  <a href="/tours" class="top-logo">
+    <div class="top-logo-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M3 17l4-8 4 4 3-5 4 9"/><path d="M21 21H3"/></svg>
     </div>
-    <div class="mbank-tagline">Мобильный банк Кыргызстана</div>
+    <span class="top-logo-text">TourKG</span>
+  </a>
+  <div class="top-secure">
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Защищённое соединение
   </div>
+</div>
 
-  <!-- Payment card -->
-  <div class="mbank-card">
-    <!-- Card header: amount display -->
-    <div class="mbank-card-header">
-      <div class="mbank-merchant">TourKG · Оплата тура</div>
-      <div class="mbank-amount" id="amountDisplay" th:text="${#numbers.formatDecimal(amount,0,'COMMA',0,'POINT')} + ' сом'">0 сом</div>
-      <div class="mbank-amount-label">Сумма к оплате</div>
-      <div class="mbank-booking-id">
-        Бронь #<span th:text="${bookingId}">—</span>
-      </div>
-    </div>
+<!-- Main checkout -->
+<div class="checkout-wrap">
 
-    <div class="mbank-card-body">
+  <!-- ─── Payment form ─── -->
+  <div>
+    <div class="pay-card">
+      <div class="pay-card-header">
+        <div class="pay-card-title">Способ оплаты</div>
 
-      <!-- Progress steps -->
-      <div class="mbank-steps">
-        <div class="mbank-step">
-          <div class="mbank-step-dot active" id="dot1">1</div>
-          <div class="mbank-step-label">Телефон</div>
+        <!-- Method tabs -->
+        <div class="method-tabs">
+
+          <!-- MBank tab -->
+          <div class="method-tab active" id="tabMbank" onclick="switchTab('mbank')">
+            <div class="mbank-logo-row">
+              <img src="https://mbank.kg/media/logo/frame_1288.png" alt="MBank" class="tab-logo">
+              <span>MBank</span>
+            </div>
+            <div class="tab-label">По номеру телефона</div>
+          </div>
+
+          <!-- Elcard tab -->
+          <div class="method-tab" id="tabElcard" onclick="switchTab('elcard')">
+            <div class="elcard-logo">
+              <span class="el">El</span><span class="card">card</span>
+            </div>
+            <div class="tab-label">Банковская карта</div>
+          </div>
+
         </div>
-        <div class="mbank-step-line" id="line1"></div>
-        <div class="mbank-step">
-          <div class="mbank-step-dot waiting" id="dot2">2</div>
-          <div class="mbank-step-label">SMS-код</div>
-        </div>
-        <div class="mbank-step-line" id="line2"></div>
-        <div class="mbank-step">
-          <div class="mbank-step-dot waiting" id="dot3">✓</div>
-          <div class="mbank-step-label">Готово</div>
-        </div>
-      </div>
-
-      <!-- Hidden fields -->
-      <input type="hidden" id="bookingId" th:value="${bookingId}">
-      <input type="hidden" id="amount" th:value="${amount}">
-      <input type="hidden" id="transactionId" value="">
-
-      <!-- STEP 1: Phone -->
-      <div id="statePhone">
-        <div class="mbank-alert error" id="phoneError"></div>
-
-        <div class="mbank-hint">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          Введите номер телефона вашего M-Bank аккаунта
-        </div>
-
-        <label class="mbank-label">Номер телефона</label>
-        <div class="phone-wrapper mb-4">
-          <div class="phone-prefix">+996</div>
-          <input type="tel" id="phoneInput" placeholder="700 000 000" maxlength="9"
-                 oninput="this.value=this.value.replace(/\D/g,'')">
-        </div>
-
-        <button class="mbank-btn" id="sendSmsBtn" onclick="initiatePayment()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          Отправить SMS-код
-        </button>
       </div>
 
-      <!-- STEP 2: SMS Code -->
-      <div id="stateSms" style="display:none;">
-        <div class="mbank-alert error" id="smsError"></div>
-        <div class="mbank-alert success" id="smsSuccess"></div>
+      <div class="pay-card-body">
 
-        <div class="mbank-hint">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 9.79 19.79 19.79 0 0 1 1.65 1.12 2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.93 6.93l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          SMS отправлено на +996 <span id="phoneMask">***</span>. Код действует 5 минут.
-        </div>
+        <!-- ══════════ MBANK PANEL ══════════ -->
+        <div class="pay-panel active" id="panelMbank">
 
-        <label class="mbank-label" style="text-align:center;display:block;margin-bottom:4px;">Введите 4-значный код</label>
-        <div class="otp-inputs">
-          <input type="text" class="otp-input" maxlength="1" id="otp0" oninput="otpNext(0)" onkeydown="otpBack(event,0)">
-          <input type="text" class="otp-input" maxlength="1" id="otp1" oninput="otpNext(1)" onkeydown="otpBack(event,1)">
-          <input type="text" class="otp-input" maxlength="1" id="otp2" oninput="otpNext(2)" onkeydown="otpBack(event,2)">
-          <input type="text" class="otp-input" maxlength="1" id="otp3" oninput="otpNext(3)" onkeydown="otpBack(event,3)">
-        </div>
-        <div style="text-align:center;font-size:.75rem;color:#9CA3AF;margin-bottom:20px;">
-          Тестовый код: <strong style="color:#7C3AED;">1234</strong>
-        </div>
+          <!-- Hidden fields -->
+          <input type="hidden" id="bookingId" th:value="${bookingId}">
+          <input type="hidden" id="amount" th:value="${amount}">
+          <input type="hidden" id="transactionId" value="">
 
-        <!-- Spinner during confirm -->
-        <div class="mbank-spinner" id="smsSpinner">
-          <div class="spinner-ring"></div>
-          <div class="spinner-text">Проверяем код...</div>
-          <div class="spinner-sub">Пожалуйста, подождите</div>
-        </div>
-
-        <button class="mbank-btn" id="confirmBtn" onclick="confirmPayment()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Подтвердить оплату
-        </button>
-        <button class="mbank-btn-outline" onclick="backToPhone()">← Изменить номер</button>
-      </div>
-
-      <!-- Spinner during SMS send -->
-      <div class="mbank-spinner" id="phoneSpinner">
-        <div class="spinner-ring"></div>
-        <div class="spinner-text">Отправляем SMS...</div>
-        <div class="spinner-sub">Подождите несколько секунд</div>
-      </div>
-
-      <!-- STEP 3: Result -->
-      <div id="stateResult" style="display:none;">
-        <div class="mbank-result" id="resultBox">
-          <div class="result-icon" id="resultIcon"></div>
-          <div class="result-title" id="resultTitle"></div>
-          <div class="result-msg" id="resultMsg"></div>
-          <form method="post" th:action="@{/payment/mbank/complete}" id="completeForm">
-            <input type="hidden" name="bookingId" th:value="${bookingId}" id="completeBookingId">
-            <input type="hidden" name="transactionId" id="completeTxnId">
-            <button type="submit" class="mbank-btn" id="completeBtn" style="display:none;">
-              Перейти в личный кабинет →
+          <!-- STEP 1: Phone -->
+          <div class="step active" id="mbStep1">
+            <div class="pay-alert err" id="phoneError"></div>
+            <div class="pay-hint">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Введите номер телефона вашего MBank аккаунта. Вам придёт SMS с кодом подтверждения.
+            </div>
+            <div class="field-group">
+              <label class="field-label">Номер телефона MBank</label>
+              <div class="phone-group">
+                <div class="phone-code">🇰🇬 +996</div>
+                <input type="tel" id="phoneInput" placeholder="700 000 000" maxlength="9"
+                       oninput="this.value=this.value.replace(/\D/g,'')"
+                       onkeydown="if(event.key==='Enter')initiatePayment()">
+              </div>
+            </div>
+            <button class="btn-pay btn-pay-green" id="sendSmsBtn" onclick="initiatePayment()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 9.79 19.79 19.79 0 0 1 1.65 1.12 2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.93 6.93l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Получить SMS-код
             </button>
-          </form>
-          <button class="mbank-btn" id="retryBtn" style="display:none;background:linear-gradient(135deg,#EF4444,#DC2626);" onclick="backToPhone()">
-            Попробовать снова
+          </div>
+
+          <!-- SMS spinner -->
+          <div class="spin-wrap" id="phoneSpinner">
+            <div class="spin-ring"></div>
+            <div class="spin-text">Отправляем SMS...</div>
+          </div>
+
+          <!-- STEP 2: OTP -->
+          <div class="step" id="mbStep2">
+            <div class="pay-alert err" id="smsError"></div>
+            <div class="pay-hint">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              SMS отправлено на +996 <strong id="phoneMask">***</strong>. Код действует 5 минут.
+            </div>
+            <label class="field-label" style="text-align:center;display:block;margin-bottom:4px;">Введите 4-значный код из SMS</label>
+            <div class="otp-row">
+              <input type="text" class="otp-box" maxlength="1" id="otp0" oninput="otpNext(0)" onkeydown="otpBack(event,0)" inputmode="numeric">
+              <input type="text" class="otp-box" maxlength="1" id="otp1" oninput="otpNext(1)" onkeydown="otpBack(event,1)" inputmode="numeric">
+              <input type="text" class="otp-box" maxlength="1" id="otp2" oninput="otpNext(2)" onkeydown="otpBack(event,2)" inputmode="numeric">
+              <input type="text" class="otp-box" maxlength="1" id="otp3" oninput="otpNext(3)" onkeydown="otpBack(event,3)" inputmode="numeric">
+            </div>
+            <div class="test-hint">Тестовый код: <strong>1234</strong></div>
+
+            <div class="spin-wrap" id="smsSpinner">
+              <div class="spin-ring"></div>
+              <div class="spin-text">Проверяем код...</div>
+            </div>
+
+            <button class="btn-pay btn-pay-green" id="confirmBtn" onclick="confirmPayment()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Подтвердить оплату
+            </button>
+            <button class="btn-ghost" onclick="backToPhone()">← Изменить номер</button>
+          </div>
+
+          <!-- STEP 3: Result -->
+          <div class="step" id="mbStep3">
+            <div class="result-box" id="resultBox">
+              <div class="result-circle" id="resultIcon"></div>
+              <div class="result-h" id="resultTitle"></div>
+              <div class="result-p" id="resultMsg"></div>
+              <form method="post" th:action="@{/payment/mbank/complete}" id="completeForm">
+                <input type="hidden" name="bookingId" th:value="${bookingId}" id="completeBookingId">
+                <input type="hidden" name="transactionId" id="completeTxnId">
+                <button type="submit" class="btn-pay btn-pay-purple" id="completeBtn" style="display:none;">
+                  Перейти в личный кабинет →
+                </button>
+              </form>
+              <button class="btn-pay btn-pay-purple" id="retryBtn"
+                      style="display:none;background:linear-gradient(135deg,#EF4444,#DC2626);box-shadow:0 4px 16px rgba(239,68,68,.3);"
+                      onclick="backToPhone()">
+                Попробовать снова
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /panelMbank -->
+
+
+        <!-- ══════════ ELCARD PANEL ══════════ -->
+        <div class="pay-panel" id="panelElcard">
+          <div class="pay-hint" style="background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            Оплата картой Elcard / Элкарт через защищённое соединение
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Номер карты</label>
+            <div class="input-wrap card-num-wrap">
+              <input type="text" id="cardNumber" placeholder="0000  0000  0000  0000" maxlength="19"
+                     oninput="formatCard(this)" inputmode="numeric">
+              <div class="card-brands">
+                <span class="brand-visa">VISA</span>
+                <!-- Mastercard circles -->
+                <svg width="32" height="20" viewBox="0 0 32 20" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="11" cy="10" r="9" fill="#EB001B" opacity=".9"/>
+                  <circle cx="21" cy="10" r="9" fill="#F79E1B" opacity=".9"/>
+                  <path d="M16 3.5a9 9 0 0 1 0 13A9 9 0 0 1 16 3.5z" fill="#FF5F00"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Срок действия</label>
+              <div class="input-wrap">
+                <input type="text" id="cardExpiry" placeholder="ММ / ГГ" maxlength="7"
+                       oninput="formatExpiry(this)" inputmode="numeric">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">CVV / CVC</label>
+              <div class="input-wrap">
+                <input type="password" id="cardCvv" placeholder="•••" maxlength="3" inputmode="numeric">
+                <span class="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Имя держателя карты</label>
+            <div class="input-wrap">
+              <input type="text" id="cardName" placeholder="IVAN IVANOV" style="text-transform:uppercase;">
+            </div>
+          </div>
+
+          <div class="pay-alert err" id="elcardError"></div>
+
+          <div class="spin-wrap" id="elcardSpinner">
+            <div class="spin-ring"></div>
+            <div class="spin-text">Обрабатываем платёж...</div>
+          </div>
+
+          <div class="result-box" id="elcardResultBox">
+            <div class="result-circle" id="elcardResultIcon"></div>
+            <div class="result-h" id="elcardResultTitle"></div>
+            <div class="result-p" id="elcardResultMsg"></div>
+            <form method="post" th:action="@{/payment/mbank/complete}" id="elcardCompleteForm">
+              <input type="hidden" name="bookingId" th:value="${bookingId}">
+              <input type="hidden" name="transactionId" id="elcardTxnId">
+              <button type="submit" class="btn-pay btn-pay-purple" id="elcardCompleteBtn" style="display:none;">
+                Перейти в личный кабинет →
+              </button>
+            </form>
+            <button class="btn-pay btn-pay-purple" id="elcardRetryBtn"
+                    style="display:none;background:linear-gradient(135deg,#EF4444,#DC2626);box-shadow:0 4px 16px rgba(239,68,68,.3);"
+                    onclick="resetElcard()">
+              Попробовать снова
+            </button>
+          </div>
+
+          <button class="btn-pay btn-pay-purple" id="elcardPayBtn" onclick="payElcard()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            Оплатить <span th:text="${#numbers.formatDecimal(amount,0,'COMMA',0,'POINT')} + ' сом'">0 сом</span>
           </button>
+
+        </div><!-- /panelElcard -->
+
+
+        <!-- Trust badges -->
+        <div class="trust-row">
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            SSL-шифрование
+          </div>
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            PCI DSS
+          </div>
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Verified by Visa
+          </div>
+          <div class="trust-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Mastercard SecureCode
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <a th:href="@{/cabinet}" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Вернуться в личный кабинет
+    </a>
+  </div>
+
+
+  <!-- ─── Order summary ─── -->
+  <div class="order-col">
+    <div class="order-card">
+      <div class="order-header">Детали заказа</div>
+      <div class="order-tour-name" th:text="${booking?.tourDate?.tour?.title ?: 'Тур #' + bookingId}">Тур</div>
+
+      <div class="order-meta">
+        <div class="order-meta-row" th:if="${booking?.tourDate?.departureDate != null}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span th:text="${#temporals.format(booking.tourDate.departureDate,'dd MMMM yyyy')}">—</span>
+        </div>
+        <div class="order-meta-row" th:if="${booking?.tourDate?.tour?.destination != null}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span th:text="${booking.tourDate.tour.destination}">—</span>
+        </div>
+        <div class="order-meta-row" th:if="${booking?.participants != null}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span th:text="${booking.participants} + ' участников'">—</span>
+        </div>
+        <div class="order-meta-row">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Бронь #<span th:text="${bookingId}">—</span>
         </div>
       </div>
 
+      <div class="order-divider"></div>
+
+      <div class="order-total-row">
+        <span class="order-total-label">К оплате</span>
+        <span class="order-total-amount" th:text="${#numbers.formatDecimal(amount,0,'COMMA',0,'POINT')} + ' сом'">0 сом</span>
+      </div>
+
+      <div class="order-deadline" th:if="${booking?.paymentDeadline != null}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>
+          Оплатите до <strong th:text="${#temporals.format(booking.paymentDeadline,'dd.MM.yyyy HH:mm')}">—</strong>
+          или бронирование будет отменено.
+          <span class="countdown" id="countdownTimer"></span>
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="mbank-security">
-    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    Защищено SSL · 256-bit шифрование
-  </div>
+</div><!-- /checkout-wrap -->
+
 
 <script>
+  /* ─── Tab switching ─── */
+  function switchTab(tab) {
+    document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  }
+
+  /* ─── MBank: show step ─── */
+  function showMbStep(id) {
+    ['mbStep1','mbStep2','mbStep3'].forEach(s => document.getElementById(s).classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  /* ─── Initiate MBank payment ─── */
   function initiatePayment() {
     const phone = document.getElementById('phoneInput').value;
-    if (phone.length < 9) {
-      showAlert('phoneError', 'Введите корректный номер телефона (9 цифр)');
-      return;
-    }
-
+    if (phone.length < 9) { showAlert('phoneError', 'Введите корректный номер телефона (9 цифр)'); return; }
     const bookingId = document.getElementById('bookingId').value;
-    const amount = document.getElementById('amount').value;
+    const amount    = document.getElementById('amount').value;
 
-    document.getElementById('statePhone').style.display = 'none';
+    document.getElementById('mbStep1').classList.remove('active');
     document.getElementById('phoneSpinner').style.display = 'block';
 
-    const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
-
     const headers = { 'Content-Type': 'application/json' };
-    if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+    addCsrf(headers);
 
     fetch('/payment/mbank/initiate', {
-      method: 'POST',
-      headers: headers,
+      method: 'POST', headers,
       body: JSON.stringify({ bookingId, amount, phone: '+996' + phone })
     })
     .then(r => r.json())
@@ -511,52 +871,42 @@
       if (data.status === 'sms_sent') {
         document.getElementById('transactionId').value = data.transactionId;
         document.getElementById('completeTxnId').value = data.transactionId;
-        const masked = phone.slice(0,3) + '***' + phone.slice(-2);
-        document.getElementById('phoneMask').textContent = masked;
-        document.getElementById('stateSms').style.display = 'block';
-        updateStepDots(2);
-        // auto-focus first OTP input
+        document.getElementById('phoneMask').textContent = phone.slice(0,3) + '***' + phone.slice(-2);
+        showMbStep('mbStep2');
         setTimeout(() => document.getElementById('otp0').focus(), 100);
       } else {
-        document.getElementById('statePhone').style.display = 'block';
+        document.getElementById('mbStep1').classList.add('active');
         showAlert('phoneError', data.message || 'Ошибка отправки SMS');
       }
     })
     .catch(() => {
       document.getElementById('phoneSpinner').style.display = 'none';
-      document.getElementById('statePhone').style.display = 'block';
+      document.getElementById('mbStep1').classList.add('active');
       showAlert('phoneError', 'Ошибка соединения. Попробуйте снова.');
     });
   }
 
+  /* ─── Confirm OTP ─── */
   function confirmPayment() {
     const code = ['otp0','otp1','otp2','otp3'].map(id => document.getElementById(id).value).join('');
-    if (code.length < 4) {
-      showAlert('smsError', 'Введите 4-значный код из SMS');
-      return;
-    }
+    if (code.length < 4) { showAlert('smsError', 'Введите 4-значный код из SMS'); return; }
     const txnId = document.getElementById('transactionId').value;
 
     document.getElementById('confirmBtn').style.display = 'none';
     document.getElementById('smsSpinner').style.display = 'block';
     hideAlert('smsError');
 
-    const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
     const headers = { 'Content-Type': 'application/json' };
-    if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+    addCsrf(headers);
 
     fetch('/payment/mbank/confirm', {
-      method: 'POST',
-      headers: headers,
+      method: 'POST', headers,
       body: JSON.stringify({ code, transactionId: txnId })
     })
     .then(r => r.json())
     .then(data => {
       document.getElementById('smsSpinner').style.display = 'none';
-      document.getElementById('stateSms').style.display = 'none';
-      document.getElementById('stateResult').style.display = 'block';
-      updateStepDots(3);
+      showMbStep('mbStep3');
       showResult(data.status === 'success', data.message);
     })
     .catch(() => {
@@ -567,93 +917,158 @@
   }
 
   function showResult(success, message) {
-    const icon  = document.getElementById('resultIcon');
+    const icon = document.getElementById('resultIcon');
     const title = document.getElementById('resultTitle');
-    const msg   = document.getElementById('resultMsg');
-    const completeBtn = document.getElementById('completeBtn');
-    const retryBtn    = document.getElementById('retryBtn');
-    const resultBox   = document.getElementById('resultBox');
-
-    resultBox.style.display = 'block';
+    const msg = document.getElementById('resultMsg');
+    const box = document.getElementById('resultBox');
+    box.style.display = 'block';
     if (success) {
-      icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-      icon.className = 'result-icon success';
+      icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+      icon.className = 'result-circle ok';
       title.textContent = 'Оплата прошла успешно!';
       title.style.color = '#065F46';
-      msg.textContent   = message || 'Ваше бронирование подтверждено.';
-      completeBtn.style.display = 'flex';
+      msg.textContent = message || 'Ваше бронирование подтверждено.';
+      document.getElementById('completeBtn').style.display = 'flex';
     } else {
-      icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>';
-      icon.className = 'result-icon error';
+      icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>';
+      icon.className = 'result-circle err';
       title.textContent = 'Ошибка оплаты';
       title.style.color = '#991B1B';
-      msg.textContent   = message || 'Проверьте код и попробуйте снова.';
-      retryBtn.style.display = 'flex';
+      msg.textContent = message || 'Проверьте код и попробуйте снова.';
+      document.getElementById('retryBtn').style.display = 'flex';
     }
   }
 
   function backToPhone() {
-    ['stateSms','stateResult','phoneSpinner'].forEach(id => {
-      document.getElementById(id).style.display = 'none';
-    });
-    document.getElementById('statePhone').style.display = 'block';
+    document.getElementById('phoneSpinner').style.display = 'none';
+    document.getElementById('smsSpinner').style.display = 'none';
+    document.getElementById('confirmBtn').style.display = 'flex';
+    document.getElementById('resultBox').style.display = 'none';
     document.getElementById('phoneInput').value = '';
     ['otp0','otp1','otp2','otp3'].forEach(id => { document.getElementById(id).value = ''; });
-    hideAlert('phoneError');
-    updateStepDots(1);
+    hideAlert('phoneError'); hideAlert('smsError');
+    showMbStep('mbStep1');
   }
 
-  function updateStepDots(step) {
-    for (let i = 1; i <= 3; i++) {
-      const dot = document.getElementById('dot' + i);
-      if (!dot) continue;
-      dot.className = 'mbank-step-dot ' + (i < step ? 'done' : i === step ? 'active' : 'waiting');
-      if (i === 3 && step === 3) dot.innerHTML = '✓';
-    }
-    for (let i = 1; i <= 2; i++) {
-      const line = document.getElementById('line' + i);
-      if (line) line.className = 'mbank-step-line' + (i < step ? ' done' : '');
-    }
-  }
-
+  /* ─── OTP navigation ─── */
   function otpNext(idx) {
     const val = document.getElementById('otp' + idx).value;
-    if (val && idx < 3) {
-      document.getElementById('otp' + (idx + 1)).focus();
-    }
+    if (val && idx < 3) document.getElementById('otp' + (idx + 1)).focus();
     if (idx === 3 && val) {
-      // auto-confirm if all 4 filled
       const code = ['otp0','otp1','otp2','otp3'].map(id => document.getElementById(id).value).join('');
       if (code.length === 4) confirmPayment();
     }
   }
-
   function otpBack(e, idx) {
-    if (e.key === 'Backspace' && !document.getElementById('otp' + idx).value && idx > 0) {
+    if (e.key === 'Backspace' && !document.getElementById('otp' + idx).value && idx > 0)
       document.getElementById('otp' + (idx - 1)).focus();
+  }
+
+  /* ─── Elcard payment ─── */
+  function payElcard() {
+    const num  = document.getElementById('cardNumber').value.replace(/\s/g,'');
+    const exp  = document.getElementById('cardExpiry').value;
+    const cvv  = document.getElementById('cardCvv').value;
+    const name = document.getElementById('cardName').value.trim();
+    if (num.length < 16) { showAlert('elcardError', 'Введите корректный номер карты'); return; }
+    if (exp.length < 5)  { showAlert('elcardError', 'Введите срок действия карты'); return; }
+    if (cvv.length < 3)  { showAlert('elcardError', 'Введите CVV код'); return; }
+    if (!name)            { showAlert('elcardError', 'Введите имя держателя карты'); return; }
+    hideAlert('elcardError');
+
+    document.getElementById('elcardPayBtn').style.display = 'none';
+    document.getElementById('elcardSpinner').style.display = 'block';
+
+    const bookingId = document.getElementById('bookingId').value;
+    const amount    = document.getElementById('amount').value;
+    const txnId = 'ELC-' + Date.now();
+    document.getElementById('elcardTxnId').value = txnId;
+
+    // Simulate processing
+    setTimeout(() => {
+      document.getElementById('elcardSpinner').style.display = 'none';
+      showElcardResult(true, 'Платёж прошёл успешно. Ваше бронирование подтверждено.');
+    }, 2200);
+  }
+
+  function showElcardResult(success, message) {
+    const box = document.getElementById('elcardResultBox');
+    box.style.display = 'block';
+    const icon = document.getElementById('elcardResultIcon');
+    const title = document.getElementById('elcardResultTitle');
+    const msg = document.getElementById('elcardResultMsg');
+    if (success) {
+      icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+      icon.className = 'result-circle ok';
+      title.textContent = 'Оплата прошла успешно!';
+      title.style.color = '#065F46';
+      msg.textContent = message;
+      document.getElementById('elcardCompleteBtn').style.display = 'flex';
+    } else {
+      icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>';
+      icon.className = 'result-circle err';
+      title.textContent = 'Ошибка оплаты';
+      title.style.color = '#991B1B';
+      msg.textContent = message;
+      document.getElementById('elcardRetryBtn').style.display = 'flex';
     }
   }
 
+  function resetElcard() {
+    document.getElementById('elcardResultBox').style.display = 'none';
+    document.getElementById('elcardPayBtn').style.display = 'flex';
+    document.getElementById('elcardRetryBtn').style.display = 'none';
+    document.getElementById('elcardCompleteBtn').style.display = 'none';
+    hideAlert('elcardError');
+  }
+
+  /* ─── Card format helpers ─── */
+  function formatCard(el) {
+    let v = el.value.replace(/\D/g,'').slice(0,16);
+    el.value = v.replace(/(.{4})/g,'$1 ').trim();
+  }
+  function formatExpiry(el) {
+    let v = el.value.replace(/\D/g,'').slice(0,4);
+    if (v.length >= 2) v = v.slice(0,2) + ' / ' + v.slice(2);
+    el.value = v;
+  }
+
+  /* ─── Alert helpers ─── */
   function showAlert(id, msg) {
     const el = document.getElementById(id);
     if (!el) return;
-    el.textContent = msg;
-    el.style.display = 'block';
+    el.textContent = msg; el.style.display = 'block';
   }
   function hideAlert(id) {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   }
 
-  // On Enter in phone input — submit
-  document.addEventListener('DOMContentLoaded', function() {
-    const pi = document.getElementById('phoneInput');
-    if (pi) {
-      pi.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') initiatePayment();
-      });
+  /* ─── CSRF ─── */
+  function addCsrf(headers) {
+    const t = document.querySelector('meta[name="_csrf"]')?.content;
+    const h = document.querySelector('meta[name="_csrf_header"]')?.content;
+    if (t && h) headers[h] = t;
+  }
+
+  /* ─── Countdown ─── */
+  (function() {
+    var deadlineEl = document.getElementById('countdownTimer');
+    if (!deadlineEl) return;
+    var deadlineStr = /*[[${booking?.paymentDeadline != null ? booking.paymentDeadline.toString() : ''}]]*/ '';
+    if (!deadlineStr) return;
+    var deadline = new Date(deadlineStr.replace('T',' '));
+    if (isNaN(deadline.getTime())) return;
+    function tick() {
+      var diff = deadline - new Date();
+      if (diff <= 0) { deadlineEl.textContent = '(время истекло)'; deadlineEl.style.color = '#EF4444'; return; }
+      var h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+      deadlineEl.textContent = '(' + pad(h) + ':' + pad(m) + ':' + pad(s) + ')';
+      setTimeout(tick, 1000);
     }
-  });
+    function pad(n) { return n < 10 ? '0'+n : ''+n; }
+    tick();
+  })();
 </script>
 </body>
 </html>

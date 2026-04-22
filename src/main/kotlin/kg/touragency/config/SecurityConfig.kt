@@ -52,7 +52,7 @@ class SecurityConfig {
                 ).permitAll()
                 it.requestMatchers("/admin/**").hasRole("ADMIN")
                 it.requestMatchers("/operator/**").hasAnyRole("OPERATOR", "ADMIN")
-                it.requestMatchers("/booking/**", "/cabinet/**", "/review/**", "/payment/**").authenticated()
+                it.requestMatchers("/booking/**", "/cabinet/**", "/review/**", "/payment/**", "/voucher/**").authenticated()
                 it.anyRequest().authenticated()
             }
             .formLogin {

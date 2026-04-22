@@ -19,19 +19,16 @@ function showAuthTab(tab) {
   const registerBtn   = document.getElementById('tabRegisterBtn');
   if (!loginPanel) return;
 
-  const activeStyle   = 'flex:1;padding:10px;border:none;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;transition:.2s;background:#EFF6FF;color:#2563EB;';
-  const inactiveStyle = 'flex:1;padding:10px;border:none;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;transition:.2s;background:transparent;color:#6B7280;';
-
   if (tab === 'login') {
     loginPanel.style.display = 'block';
     registerPanel.style.display = 'none';
-    if (loginBtn)    loginBtn.style.cssText    = activeStyle;
-    if (registerBtn) registerBtn.style.cssText = inactiveStyle;
+    if (loginBtn)    { loginBtn.classList.add('active');    loginBtn.removeAttribute('style'); }
+    if (registerBtn) { registerBtn.classList.remove('active'); registerBtn.removeAttribute('style'); }
   } else {
     loginPanel.style.display = 'none';
     registerPanel.style.display = 'block';
-    if (loginBtn)    loginBtn.style.cssText    = inactiveStyle;
-    if (registerBtn) registerBtn.style.cssText = activeStyle;
+    if (loginBtn)    { loginBtn.classList.remove('active'); loginBtn.removeAttribute('style'); }
+    if (registerBtn) { registerBtn.classList.add('active');    registerBtn.removeAttribute('style'); }
   }
   clearAuthAlerts();
 }
@@ -231,3 +228,25 @@ if ('IntersectionObserver' in window) {
 } else {
   document.addEventListener('DOMContentLoaded', animateCounters);
 }
+
+// ── SCROLL REVEAL ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (!('IntersectionObserver' in window)) return;
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ── NAVBAR SHADOW ON SCROLL ──────────────────────
+  const navbar = document.querySelector('.tkg-navbar');
+  if (navbar) {
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+  }
+});
