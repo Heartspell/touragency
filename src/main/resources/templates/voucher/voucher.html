@@ -11,7 +11,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', sans-serif;
-      background: #F5F3FF;
+      background: #ECFDF5;
       color: #0F172A;
       min-height: 100vh;
       display: flex;
@@ -35,7 +35,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: #7C3AED;
+      color: #059669;
       text-decoration: none;
       font-weight: 600;
       font-size: .9rem;
@@ -44,7 +44,7 @@
     .toolbar-back:hover { opacity: .7; }
     .toolbar-actions { display: flex; gap: 10px; }
     .btn-print {
-      background: linear-gradient(135deg, #7C3AED, #6D28D9);
+      background: linear-gradient(135deg, #059669, #047857);
       color: #fff;
       border: none;
       border-radius: 10px;
@@ -58,11 +58,11 @@
       transition: transform .2s, box-shadow .2s;
       font-family: inherit;
     }
-    .btn-print:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,.3); }
+    .btn-print:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(5,150,105,.3); }
     .btn-share {
       background: #fff;
-      color: #7C3AED;
-      border: 1.5px solid #7C3AED;
+      color: #059669;
+      border: 1.5px solid #059669;
       border-radius: 10px;
       padding: 10px 18px;
       font-weight: 600;
@@ -74,7 +74,7 @@
       transition: all .2s;
       font-family: inherit;
     }
-    .btn-share:hover { background: #F5F3FF; }
+    .btn-share:hover { background: #ECFDF5; }
 
     /* ── VOUCHER CARD ── */
     .voucher {
@@ -93,7 +93,7 @@
 
     /* ── HEADER ── */
     .v-header {
-      background: linear-gradient(135deg, #1E0A3C 0%, #2D1B69 40%, #4C1D95 70%, #6D28D9 100%);
+      background: linear-gradient(135deg, #1E0A3C 0%, #2D1B69 40%, #064E3B 70%, #047857 100%);
       padding: 36px 40px 32px;
       position: relative;
       overflow: hidden;
@@ -133,7 +133,7 @@
     }
     .v-logo-dot {
       width: 32px; height: 32px;
-      background: linear-gradient(135deg, #C4B5FD, #FDE68A);
+      background: linear-gradient(135deg, #6EE7B7, #FDE68A);
       border-radius: 9px;
       flex-shrink: 0;
     }
@@ -154,7 +154,7 @@
     }
     .v-confirmed-dot {
       width: 7px; height: 7px;
-      background: #C4B5FD;
+      background: #6EE7B7;
       border-radius: 50%;
       animation: pulse 1.5s ease-in-out infinite;
     }
@@ -196,7 +196,7 @@
       position: absolute;
       top: 0; left: -14px;
       width: 28px; height: 28px;
-      background: #F5F3FF;
+      background: #ECFDF5;
       border-radius: 50%;
     }
     .v-divider::after {
@@ -204,16 +204,16 @@
       position: absolute;
       top: 0; right: -14px;
       width: 28px; height: 28px;
-      background: #F5F3FF;
+      background: #ECFDF5;
       border-radius: 50%;
     }
     .v-divider-line {
       flex: 1;
-      border-top: 2px dashed #EDE9FE;
+      border-top: 2px dashed #D1FAE5;
       margin: 0 20px;
     }
     .v-divider-badge {
-      background: linear-gradient(135deg, #7C3AED, #6D28D9);
+      background: linear-gradient(135deg, #059669, #047857);
       color: #fff;
       font-size: .72rem;
       font-weight: 800;
@@ -252,7 +252,7 @@
       font-weight: 700;
       color: #0F172A;
     }
-    .v-field-value.accent { color: #7C3AED; font-size: 1.05rem; }
+    .v-field-value.accent { color: #059669; font-size: 1.05rem; }
     .v-field-value.large  { font-size: 1.2rem; font-weight: 900; letter-spacing: -.5px; }
 
     /* ── PASSENGER SECTION ── */
@@ -286,7 +286,7 @@
     .v-passenger-avatar {
       width: 48px; height: 48px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #7C3AED, #6D28D9);
+      background: linear-gradient(135deg, #059669, #047857);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -309,20 +309,20 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #F5F3FF;
-      color: #4C1D95;
-      border: 1px solid #DDD6FE;
+      background: #ECFDF5;
+      color: #064E3B;
+      border: 1px solid #A7F3D0;
       font-size: .78rem;
       font-weight: 600;
       padding: 5px 12px;
       border-radius: 100px;
     }
-    .v-include-dot { width: 6px; height: 6px; background: #7C3AED; border-radius: 50%; }
+    .v-include-dot { width: 6px; height: 6px; background: #059669; border-radius: 50%; }
 
     /* ── PRICE BLOCK ── */
     .v-price-block {
-      background: linear-gradient(135deg, #F0FDF4, #F5F3FF);
-      border: 1px solid #DDD6FE;
+      background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+      border: 1px solid #A7F3D0;
       border-radius: 16px;
       padding: 20px 24px;
       display: flex;
@@ -332,11 +332,11 @@
       gap: 12px;
       margin-bottom: 28px;
     }
-    .v-price-label { font-size: .8rem; font-weight: 600; color: #4C1D95; margin-bottom: 2px; }
-    .v-price-amount { font-size: 1.8rem; font-weight: 900; color: #4C1D95; letter-spacing: -1px; }
+    .v-price-label { font-size: .8rem; font-weight: 600; color: #064E3B; margin-bottom: 2px; }
+    .v-price-amount { font-size: 1.8rem; font-weight: 900; color: #064E3B; letter-spacing: -1px; }
     .v-price-per    { font-size: .8rem; color: #6B7280; margin-top: 2px; }
     .v-paid-badge {
-      background: linear-gradient(135deg, #7C3AED, #6D28D9);
+      background: linear-gradient(135deg, #059669, #047857);
       color: #fff;
       font-weight: 800;
       font-size: .85rem;
@@ -577,7 +577,7 @@
     // Corners always filled
     const corners = [0,4,20,24];
     const filled = corners.includes(i) || ((hash >> i) & 1);
-    cell.style.background = filled ? '#7C3AED' : '#E2E8F0';
+    cell.style.background = filled ? '#059669' : '#E2E8F0';
     grid.appendChild(cell);
   }
 })();

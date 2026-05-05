@@ -12,9 +12,9 @@
 <!-- Page header -->
 <div style="background:#fff;border-bottom:1px solid #E5E7EB;padding:24px 0;">
   <div class="container">
-    <h1 style="font-size:1.6rem;font-weight:800;margin:0;color:#111827;">Каталог туров</h1>
+    <h1 style="font-size:1.6rem;font-weight:800;margin:0;color:#111827;" data-i18n="tours.title">Каталог туров</h1>
     <div style="font-size:.88rem;color:#6B7280;margin-top:4px;">
-      Найдено <strong th:text="${tours.size()}"></strong> туров
+      <span data-i18n="tours.found">Найдено туров:</span> <strong th:text="${tours.size()}"></strong>
     </div>
   </div>
 </div>
@@ -35,7 +35,7 @@
               <span th:case="*"><i data-lucide="plane" style="width:40px;height:40px;color:#fff;opacity:.9;"></i></span>
             </span>
           </div>
-          <div class="carousel-caption d-none d-md-block" style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px;">
+          <div class="carousel-caption tkg-carousel-caption">
             <h6 th:text="${t.title}">Title</h6>
             <p th:text="${t.destination}">Destination</p>
           </div>
@@ -56,22 +56,22 @@
     <div class="col-lg-3">
       <div class="filter-card">
         <div class="filter-card-header">
-          <i data-lucide="sliders-horizontal" style="width:16px;height:16px;margin-right:6px;"></i> Фильтры
+          <i data-lucide="sliders-horizontal" style="width:16px;height:16px;margin-right:6px;"></i> <span data-i18n="tours.filter">Фильтры</span>
         </div>
         <div class="filter-card-body">
           <form id="filterForm" th:action="@{/tours}" method="get">
             <div class="mb-3">
-              <label class="filter-label">Направление</label>
+              <label class="filter-label" data-i18n="tours.destination">Направление</label>
               <input type="text" name="destination" class="filter-input" placeholder="Анталья, Дубай..." th:value="${filter.destination}">
             </div>
             <div class="mb-3">
-              <label class="filter-label">Страна</label>
+              <label class="filter-label" data-i18n="tours.country">Страна</label>
               <input type="text" name="country" class="filter-input" placeholder="Турция, Таиланд..." th:value="${filter.country}">
             </div>
             <div class="mb-3">
-              <label class="filter-label">Категория</label>
+              <label class="filter-label" data-i18n="hero.category">Категория</label>
               <select name="category" class="filter-input">
-                <option value="">Все категории</option>
+                <option value="" data-i18n="tours.allCategories">Все категории</option>
                 <option th:each="cat : ${categories}"
                         th:value="${cat.name()}"
                         th:selected="${filter.category != null and filter.category == cat}"
@@ -81,15 +81,15 @@
             </div>
             <hr class="filter-divider">
             <div class="mb-3">
-              <label class="filter-label">Цена от (сом)</label>
+              <label class="filter-label" data-i18n="tours.priceFrom">Цена от (сом)</label>
               <input type="number" name="minPrice" class="filter-input" placeholder="0" th:value="${filter.minPrice}">
             </div>
             <div class="mb-4">
-              <label class="filter-label">Цена до (сом)</label>
+              <label class="filter-label" data-i18n="tours.priceTo">Цена до (сом)</label>
               <input type="number" name="maxPrice" class="filter-input" placeholder="200 000" th:value="${filter.maxPrice}">
             </div>
-            <button type="submit" class="btn-primary-tkg w-100 justify-content-center">Применить</button>
-            <a th:href="@{/tours}" class="btn-ghost-tkg w-100 justify-content-center mt-2" style="font-size:.85rem;">Сбросить</a>
+            <button type="submit" class="btn-primary-tkg w-100 justify-content-center" data-i18n="tours.apply">Применить</button>
+            <a th:href="@{/tours}" class="btn-ghost-tkg w-100 justify-content-center mt-2" style="font-size:.85rem;" data-i18n="tours.reset">Сбросить</a>
           </form>
         </div>
       </div>
@@ -99,7 +99,7 @@
     <div class="col-lg-9">
       <div th:if="${tours.empty}" class="tkg-alert tkg-alert-info">
         <i data-lucide="info" style="width:16px;height:16px;"></i>
-        По вашему запросу туров не найдено. Попробуйте изменить фильтры.
+        <span data-i18n="tours.noResultsLong">По вашему запросу туров не найдено. Попробуйте изменить фильтры.</span>
       </div>
 
       <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 cards-grid" id="tourGrid">
@@ -115,7 +115,7 @@
                 <span th:case="'CULTURAL'"><i data-lucide="landmark" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
                 <span th:case="*"><i data-lucide="plane" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
               </span>
-              <span class="tour-card-badge" th:text="${tour.durationDays} + ' дн.'"></span>
+              <span class="tour-card-badge"><span th:text="${tour.durationDays}"></span> <span data-i18n="tour.days">дн.</span></span>
             </div>
             <div class="tour-card-body">
               <div class="tour-card-country" th:text="${tour.country}"></div>
@@ -127,9 +127,9 @@
               <div class="tour-card-footer">
                 <div>
                   <div class="tour-card-price" th:text="${#numbers.formatDecimal(tour.price,0,'COMMA',0,'POINT')} + ' сом'"></div>
-                  <div class="tour-card-price-label">за человека</div>
+                  <div class="tour-card-price-label" data-i18n="tours.perPerson">за человека</div>
                 </div>
-                <div class="tour-card-btn">Подробнее</div>
+                <div class="tour-card-btn" data-i18n="tour.viewDetails">Подробнее</div>
               </div>
             </div>
           </a>

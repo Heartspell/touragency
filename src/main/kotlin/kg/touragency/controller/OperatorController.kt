@@ -7,6 +7,7 @@ import kg.touragency.service.TourService
 import kg.touragency.service.UserService
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Controller
@@ -135,8 +136,15 @@ class OperatorController(
         val operator = currentOperator(principal)
         val tour = tourService.findById(id) ?: return "redirect:/operator"
         if (tour.operator?.id != operator.id && operator.role != UserRole.ADMIN) return "redirect:/operator"
-        tourService.delete(id)
-        redirectAttributes.addFlashAttribute("success", "Тур удалён.")
+        try {
+            tourService.delete(id)
+            redirectAttributes.addFlashAttribute("success", "Тур удалён.")
+        } catch (e: DataIntegrityViolationException) {
+            redirectAttributes.addFlashAttribute(
+                "error",
+                "Этот тур нельзя удалить: у него есть даты или бронирования. Сначала удалите связанные данные или оставьте тур в архиве."
+            )
+        }
         return "redirect:/operator"
     }
 

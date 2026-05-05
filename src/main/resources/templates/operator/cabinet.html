@@ -37,14 +37,14 @@
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
       <div class="stat-card stat-card-hover">
-        <div class="stat-icon"><i data-lucide="map" style="width:32px;height:32px;color:#7C3AED;"></i></div>
+        <div class="stat-icon"><i data-lucide="map" style="width:32px;height:32px;color:#059669;"></i></div>
         <div class="stat-value counter-anim" th:data-target="${tours.size()}" th:text="${tours.size()}"></div>
         <div class="stat-name">Мои туры</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="stat-card stat-card-hover">
-        <div class="stat-icon"><i data-lucide="ticket" style="width:32px;height:32px;color:#7C3AED;"></i></div>
+        <div class="stat-icon"><i data-lucide="ticket" style="width:32px;height:32px;color:#059669;"></i></div>
         <div class="stat-value counter-anim" th:data-target="${bookingCount}" th:text="${bookingCount}"></div>
         <div class="stat-name">Бронирований</div>
       </div>
@@ -107,7 +107,7 @@
             <tr th:each="t : ${tours}">
               <td>
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <div style="width:48px;height:48px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#7C3AED,#7C3AED);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <div style="width:48px;height:48px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#059669,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     <img th:if="${t.coverImage != null}" th:src="@{/tours/{id}/cover(id=${t.id})}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" alt="">
                     <span th:unless="${t.coverImage != null}" th:switch="${t.category.name()}">
                       <i th:case="'BEACH'" data-lucide="umbrella" style="width:20px;height:20px;color:#fff;"></i>
@@ -143,7 +143,7 @@
               <td style="text-align:right;">
                 <div style="display:flex;gap:8px;justify-content:flex-end;">
                   <a th:href="@{/operator/tours/{id}/edit(id=${t.id})}"
-                     style="background:#EFF6FF;color:#7C3AED;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:.2s;"
+                     style="background:#EFF6FF;color:#059669;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:.2s;"
                      onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#EFF6FF'">
                     <i data-lucide="pencil" style="width:13px;height:13px;"></i> Изменить
                   </a>

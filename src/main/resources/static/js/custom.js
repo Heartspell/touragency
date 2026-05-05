@@ -32,6 +32,14 @@ function showAuthTab(tab) {
   }
   clearAuthAlerts();
 }
+window.showTab = showAuthTab;
+
+function tkgText(key, fallback) {
+  if (window.TKG_I18N) {
+    return window.TKG_I18N.translate(key, window.TKG_I18N.getLang()) || fallback;
+  }
+  return fallback;
+}
 
 function clearAuthAlerts() {
   ['authAlert', 'authSuccess'].forEach(id => {
@@ -58,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const btn = document.getElementById('loginSubmitBtn');
       const orig = btn ? btn.textContent : '';
-      if (btn) { btn.textContent = 'Входим…'; btn.disabled = true; }
+      if (btn) { btn.textContent = tkgText('auth.loggingIn', 'Входим...'); btn.disabled = true; }
       clearAuthAlerts();
 
       try {
@@ -70,12 +78,12 @@ document.addEventListener('DOMContentLoaded', function () {
           redirect: 'follow'
         });
         if (resp.url && (resp.url.includes('?error') || resp.url.endsWith('/login'))) {
-          showAuthMessage('Неверный email или пароль', 'error');
+          showAuthMessage(tkgText('auth.invalidLogin', 'Неверный email или пароль'), 'error');
         } else {
           window.location.href = resp.url || '/';
         }
       } catch (_) {
-        showAuthMessage('Ошибка соединения. Попробуйте ещё раз.', 'error');
+        showAuthMessage(tkgText('auth.connectionErrorRetry', 'Ошибка соединения. Попробуйте ещё раз.'), 'error');
       }
       if (btn) { btn.textContent = orig; btn.disabled = false; }
     });
@@ -88,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const btn = document.getElementById('registerSubmitBtn');
       const orig = btn ? btn.textContent : '';
-      if (btn) { btn.textContent = 'Регистрируем…'; btn.disabled = true; }
+      if (btn) { btn.textContent = tkgText('auth.registering', 'Регистрируем...'); btn.disabled = true; }
       clearAuthAlerts();
 
       try {
@@ -100,14 +108,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         const data = await resp.json().catch(() => ({}));
         if (data.status === 'ok') {
-          showAuthMessage('✅ Аккаунт создан! Теперь войдите.', 'success');
+          showAuthMessage(tkgText('auth.registerSuccess', 'Аккаунт создан! Теперь войдите.'), 'success');
           registerForm.reset();
           setTimeout(() => showAuthTab('login'), 1400);
         } else {
-          showAuthMessage(data.error || 'Ошибка регистрации', 'error');
+          showAuthMessage(data.error || tkgText('auth.registerError', 'Ошибка регистрации'), 'error');
         }
       } catch (_) {
-        showAuthMessage('Ошибка соединения', 'error');
+        showAuthMessage(tkgText('auth.connectionError', 'Ошибка соединения'), 'error');
       }
       if (btn) { btn.textContent = orig; btn.disabled = false; }
     });
@@ -177,7 +185,7 @@ function updateWizardSummary() {
   if (!input || !totalEl) return;
   const count = parseInt(input.value) || 1;
   const price = parseFloat(totalEl.getAttribute('data-price')) || 0;
-  if (partEl) partEl.textContent = count + ' чел.';
+  if (partEl) partEl.textContent = count + ' ' + tkgText('misc.people', 'чел.');
   totalEl.textContent = (count * price).toLocaleString('ru-RU') + ' сом';
 }
 

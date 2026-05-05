@@ -20,28 +20,28 @@
         <div class="hero-badge mb-3" th:if="${heroBadge != null and heroBadge != ''}"
              style="display:inline-block;background:rgba(255,255,255,0.18);color:#fff;border-radius:20px;padding:6px 18px;font-size:.9rem;font-weight:600;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.3);"
              th:text="${heroBadge}"></div>
-        <div class="hero-title hero-float" th:text="${heroTitle}">Найди свой идеальный тур</div>
-        <div class="hero-subtitle" th:text="${heroSubtitle}">Лучшие туры по Кыргызстану и всему миру. Бронируй онлайн — получи подтверждение мгновенно.</div>
+        <div class="hero-title hero-float" th:text="${heroTitle}"><span th:text="#{hero.title}"></span></div>
+        <div class="hero-subtitle" th:text="${heroSubtitle}"><span th:text="#{hero.subtitle}"></span></div>
 
         <div class="search-box mt-4">
           <form th:action="@{/tours}" method="get" class="d-contents w-100" style="display:contents;">
             <div class="search-field">
-              <input type="text" name="destination" placeholder="Куда летим?" autocomplete="off">
+              <input type="text" name="destination" placeholder="Куда летим?" data-i18n-placeholder="hero.searchDest" autocomplete="off">
             </div>
             <div class="search-field">
               <select name="category">
-                <option value="">Категория</option>
-                <option value="BEACH">Пляж</option>
-                <option value="MOUNTAIN">Горы</option>
-                <option value="CITY">Город</option>
-                <option value="ADVENTURE">Приключения</option>
-                <option value="CULTURAL">Культура</option>
+                <option value="" data-i18n="hero.category">Категория</option>
+                <option value="BEACH" data-i18n="cat.beach">Пляж</option>
+                <option value="MOUNTAIN" data-i18n="cat.mountain">Горы</option>
+                <option value="CITY" data-i18n="cat.city">Город</option>
+                <option value="ADVENTURE" data-i18n="cat.adventure">Приключения</option>
+                <option value="CULTURAL" data-i18n="cat.cultural">Культура</option>
               </select>
             </div>
             <div class="search-field">
-              <input type="number" name="maxPrice" placeholder="Бюджет (сом)">
+              <input type="number" name="maxPrice" placeholder="Бюджет (сом)" data-i18n-placeholder="hero.budget">
             </div>
-            <button type="submit" class="search-btn" th:text="${heroBtnPrimary}">Найти туры</button>
+            <button type="submit" class="search-btn" data-i18n="hero.searchBtn" th:text="${heroBtnPrimary}">Найти туры</button>
           </form>
         </div>
 
@@ -80,7 +80,7 @@
           <span th:case="*"><i data-lucide="plane" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
         </span>
       </div>
-      <div class="carousel-caption d-none d-md-block" style="background:rgba(0,0,0,0.25);border-radius:8px;padding:8px;">
+      <div class="carousel-caption tkg-carousel-caption">
         <h5 th:text="${t.title}">Title</h5>
         <p th:text="${t.destination}">Destination</p>
       </div>
@@ -102,11 +102,11 @@
     <div class="row">
       <div class="col-6 stat-item">
         <div class="stat-num" th:text="${statsTours}">500+</div>
-        <div class="stat-label">Туров</div>
+        <div class="stat-label" data-i18n="home.statsTours">Туров</div>
       </div>
       <div class="col-6 stat-item">
         <div class="stat-num" th:text="${statsClients}">12 000+</div>
-        <div class="stat-label">Зарегистрированных туристов</div>
+        <div class="stat-label" data-i18n="home.statsClients">Зарегистрированных туристов</div>
       </div>
     </div>
   </div>
@@ -117,10 +117,10 @@
   <div class="container">
     <div class="d-flex justify-content-between align-items-end mb-4">
       <div>
-        <div class="section-title" th:text="${featuredSectionTitle}">Популярные направления</div>
-        <div class="section-subtitle">Лучшие туры по отзывам и бронированиям</div>
+        <div class="section-title" th:text="${featuredSectionTitle}"><span th:text="#{featured.title}"></span></div>
+        <div class="section-subtitle" data-i18n="home.featuredSubtitle">Лучшие туры по отзывам и бронированиям</div>
       </div>
-      <a th:href="@{/tours}" class="btn-ghost-tkg" style="font-size:.85rem;" th:text="${heroBtnSecondary}">Все туры →</a>
+      <a th:href="@{/tours}" class="btn-ghost-tkg" style="font-size:.85rem;" data-i18n="hero.btnSecondary">Смотреть все туры</a>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 cards-grid">
@@ -136,7 +136,7 @@
               <span th:case="'CULTURAL'"><i data-lucide="landmark" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
               <span th:case="*"><i data-lucide="plane" style="width:56px;height:56px;color:#fff;opacity:.9;"></i></span>
             </span>
-            <span class="tour-card-badge" th:text="${tour.durationDays} + ' дн.'"></span>
+            <span class="tour-card-badge"><span th:text="${tour.durationDays}"></span> <span data-i18n="tour.days">дн.</span></span>
           </div>
           <div class="tour-card-body">
             <div class="tour-card-country" th:text="${tour.country}"></div>
@@ -148,9 +148,9 @@
             <div class="tour-card-footer">
               <div>
                 <div class="tour-card-price" th:text="${#numbers.formatDecimal(tour.price,0,'COMMA',0,'POINT')} + ' сом'"></div>
-                <div class="tour-card-price-label">за человека</div>
+                <div class="tour-card-price-label" data-i18n="tours.perPerson">за человека</div>
               </div>
-              <div class="tour-card-btn">Подробнее</div>
+              <div class="tour-card-btn" data-i18n="tour.viewDetails">Подробнее</div>
             </div>
           </div>
         </a>
@@ -163,43 +163,43 @@
 <section style="padding:0 0 64px;">
   <div class="container">
     <div class="mb-4">
-      <div class="section-title">Выбери по интересам</div>
+      <div class="section-title" data-i18n="home.categoriesTitle">Выбери по интересам</div>
     </div>
     <div class="row g-3">
       <div class="col-6 col-md-4 col-lg-2">
         <a th:href="@{/tours?category=BEACH}" class="cat-card" style="background:linear-gradient(135deg,#0EA5E9,#0284C7);">
           <i data-lucide="umbrella" class="cat-card-icon"></i>
-          <div class="cat-card-label">Пляж</div>
+          <div class="cat-card-label" data-i18n="cat.beach">Пляж</div>
         </a>
       </div>
       <div class="col-6 col-md-4 col-lg-2">
         <a th:href="@{/tours?category=MOUNTAIN}" class="cat-card" style="background:linear-gradient(135deg,#10B981,#059669);">
           <i data-lucide="mountain" class="cat-card-icon"></i>
-          <div class="cat-card-label">Горы</div>
+          <div class="cat-card-label" data-i18n="cat.mountain">Горы</div>
         </a>
       </div>
       <div class="col-6 col-md-4 col-lg-2">
-        <a th:href="@{/tours?category=CITY}" class="cat-card" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);">
+        <a th:href="@{/tours?category=CITY}" class="cat-card" style="background:linear-gradient(135deg,#8B5CF6,#059669);">
           <i data-lucide="building-2" class="cat-card-icon"></i>
-          <div class="cat-card-label">Город</div>
+          <div class="cat-card-label" data-i18n="cat.city">Город</div>
         </a>
       </div>
       <div class="col-6 col-md-4 col-lg-2">
         <a th:href="@{/tours?category=ADVENTURE}" class="cat-card" style="background:linear-gradient(135deg,#F97316,#EA580C);">
           <i data-lucide="tent" class="cat-card-icon"></i>
-          <div class="cat-card-label">Приключения</div>
+          <div class="cat-card-label" data-i18n="cat.adventure">Приключения</div>
         </a>
       </div>
       <div class="col-6 col-md-4 col-lg-2">
         <a th:href="@{/tours?category=CULTURAL}" class="cat-card" style="background:linear-gradient(135deg,#EC4899,#DB2777);">
           <i data-lucide="landmark" class="cat-card-icon"></i>
-          <div class="cat-card-label">Культура</div>
+          <div class="cat-card-label" data-i18n="cat.cultural">Культура</div>
         </a>
       </div>
       <div class="col-6 col-md-4 col-lg-2">
         <a th:href="@{/tours}" class="cat-card" style="background:linear-gradient(135deg,#2563EB,#1D4ED8);">
           <i data-lucide="plane" class="cat-card-icon"></i>
-          <div class="cat-card-label">Все туры</div>
+          <div class="cat-card-label" data-i18n="cat.all">Все туры</div>
         </a>
       </div>
     </div>
@@ -210,35 +210,35 @@
 <section style="background:#fff;padding:64px 0;border-top:1px solid #E5E7EB;">
   <div class="container">
     <div class="text-center mb-4">
-      <div class="section-title">Почему выбирают TourKG?</div>
+      <div class="section-title" data-i18n="home.whyTitle">Почему выбирают TourKG?</div>
     </div>
     <div class="row g-4">
       <div class="col-md-3">
         <div class="why-card stat-card-hover">
           <i data-lucide="shield-check" class="why-icon"></i>
-          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Безопасно</div>
-          <div style="font-size:.85rem;color:#6B7280;">Все операторы проверены. Ваши данные защищены.</div>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;" data-i18n="home.safeTitle">Безопасно</div>
+          <div style="font-size:.85rem;color:#6B7280;" data-i18n="home.safeText">Все операторы проверены. Ваши данные защищены.</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="why-card stat-card-hover">
           <i data-lucide="zap" class="why-icon"></i>
-          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Мгновенно</div>
-          <div style="font-size:.85rem;color:#6B7280;">Подтверждение бронирования приходит сразу.</div>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;" data-i18n="home.fastTitle">Мгновенно</div>
+          <div style="font-size:.85rem;color:#6B7280;" data-i18n="home.fastText">Подтверждение бронирования приходит сразу.</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="why-card stat-card-hover">
           <i data-lucide="credit-card" class="why-icon"></i>
-          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Местная оплата</div>
-          <div style="font-size:.85rem;color:#6B7280;">MBank, ElCard и банковские карты КР.</div>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;" data-i18n="home.localPayTitle">Местная оплата</div>
+          <div style="font-size:.85rem;color:#6B7280;" data-i18n="home.localPayText">MBank, ElCard и банковские карты КР.</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="why-card stat-card-hover">
           <i data-lucide="smartphone" class="why-icon"></i>
-          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">На любом устройстве</div>
-          <div style="font-size:.85rem;color:#6B7280;">Сайт отлично работает на смартфоне и ПК.</div>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:6px;" data-i18n="home.mobileTitle">На любом устройстве</div>
+          <div style="font-size:.85rem;color:#6B7280;" data-i18n="home.mobileText">Сайт отлично работает на смартфоне и ПК.</div>
         </div>
       </div>
     </div>
