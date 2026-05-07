@@ -1,0 +1,14 @@
+{
+  "name": "Tour Agency",
+  "description": "Spring Boot tourism agency application",
+  "image": "heroku/gradle",
+  "addons": [
+    "heroku-postgresql:essential-0"
+  ],
+  "env": {
+    "THYMELEAF_CACHE": {
+      "description": "Cache Thymeleaf templates in production",
+      "value": "true"
+    }
+  }
+}
