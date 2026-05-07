@@ -16,21 +16,44 @@ class HomeController(
 
     @GetMapping("/")
     fun index(model: Model): String {
-        model.addAttribute("tours", tourService.getFeatured())
-        model.addAttribute("tourCount", tourService.count())
-        model.addAttribute("userCount", userService.count())
+        // Находим данные, которые нужны главной странице.
+        val popularTours = tourService.getFeatured()
+        val tourCount = tourService.count()
+        val userCount = userService.count()
 
-        val s = siteSettingsService.getAll()
-        model.addAttribute("heroTitle", s["hero_title"] ?: "Откройте Кыргызстан и мир")
-        model.addAttribute("heroSubtitle", s["hero_subtitle"] ?: "Лучшие туры от проверенных операторов.")
-        model.addAttribute("heroBadge", s["hero_badge"] ?: "✈ Более 100 направлений")
-        model.addAttribute("heroBtnPrimary", s["hero_btn_primary"] ?: "Найти тур")
-        model.addAttribute("heroBtnSecondary", s["hero_btn_secondary"] ?: "Смотреть все туры")
-        model.addAttribute("statsTours", s["stats_tours"] ?: "500+")
-        model.addAttribute("statsClients", s["stats_clients"] ?: "12 000+")
-        model.addAttribute("statsYears", s["stats_years"] ?: "8")
-        model.addAttribute("statsRating", s["stats_rating"] ?: "4.9")
-        model.addAttribute("featuredSectionTitle", s["featured_section_title"] ?: "Популярные направления")
+        // Передаем данные в HTML-страницу.
+        model.addAttribute("tours", popularTours)
+        model.addAttribute("tourCount", tourCount)
+        model.addAttribute("userCount", userCount)
+
+        // Берем тексты сайта из настроек.
+        val settings = siteSettingsService.getAll()
+
+        // Если настройки нет, показываем обычный текст.
+        val heroTitle = settings["hero_title"] ?: "Откройте Кыргызстан и мир"
+        val heroSubtitle = settings["hero_subtitle"] ?: "Лучшие туры от проверенных операторов."
+        val heroBadge = settings["hero_badge"] ?: "✈ Более 100 направлений"
+        val heroBtnPrimary = settings["hero_btn_primary"] ?: "Найти тур"
+        val heroBtnSecondary = settings["hero_btn_secondary"] ?: "Смотреть все туры"
+        val statsTours = settings["stats_tours"] ?: "500+"
+        val statsClients = settings["stats_clients"] ?: "12 000+"
+        val statsYears = settings["stats_years"] ?: "8"
+        val statsRating = settings["stats_rating"] ?: "4.9"
+        val featuredSectionTitle = settings["featured_section_title"] ?: "Популярные направления"
+
+        // Отправляем тексты в HTML-страницу.
+        model.addAttribute("heroTitle", heroTitle)
+        model.addAttribute("heroSubtitle", heroSubtitle)
+        model.addAttribute("heroBadge", heroBadge)
+        model.addAttribute("heroBtnPrimary", heroBtnPrimary)
+        model.addAttribute("heroBtnSecondary", heroBtnSecondary)
+        model.addAttribute("statsTours", statsTours)
+        model.addAttribute("statsClients", statsClients)
+        model.addAttribute("statsYears", statsYears)
+        model.addAttribute("statsRating", statsRating)
+        model.addAttribute("featuredSectionTitle", featuredSectionTitle)
+
+        // Показываем файл templates/index.html.
         return "index"
     }
 }

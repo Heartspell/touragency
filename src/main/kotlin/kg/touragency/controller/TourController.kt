@@ -34,8 +34,19 @@ class TourController(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) departureDateFrom: LocalDate?,
         model: Model
     ): String {
-        val cat = try { category?.let { TourCategory.valueOf(it) } } catch (_: Exception) { null }
-        val filter = TourFilter(destination, country, cat, minPrice, maxPrice, departureDateFrom)
+        // Превращаем текст категории в enum. Если текст неправильный, категории не будет.
+        var selectedCategory: TourCategory? = null
+        if (category != null) {
+            try {
+                selectedCategory = TourCategory.valueOf(category)
+            } catch (_: Exception) {
+                selectedCategory = null
+            }
+        }
+
+        // Собираем все фильтры в один объект.
+        val filter = TourFilter(destination, country, selectedCategory, minPrice, maxPrice, departureDateFrom)
+
         model.addAttribute("tours", tourService.search(filter))
         model.addAttribute("categories", TourCategory.values())
         model.addAttribute("filter", filter)
@@ -44,7 +55,11 @@ class TourController(
 
     @GetMapping("/{id}")
     fun detail(@PathVariable id: Long, model: Model): String {
-        val tour = tourService.findById(id) ?: return "redirect:/tours"
+        val tour = tourService.findById(id)
+        if (tour == null) {
+            return "redirect:/tours"
+        }
+
         val dates = tourDateRepository.findByTourAndDepartureDateAfterOrderByDepartureDate(tour, LocalDate.now())
         val reviews = reviewService.getByTour(tour)
         val images = tourImageService.findByTour(tour)
@@ -59,7 +74,7 @@ class TourController(
     @ResponseBody
     fun cover(@PathVariable id: Long): ResponseEntity<ByteArray> {
         val tour = tourService.findById(id)
-        if (tour?.coverImage != null) {
+        if (tour != null && tour.coverImage != null) {
             return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(tour.coverImageType ?: "image/jpeg"))
                 .body(tour.coverImage)
@@ -70,11 +85,11 @@ class TourController(
     @GetMapping("/{tourId}/images/{imageId}")
     @ResponseBody
     fun image(@PathVariable tourId: Long, @PathVariable imageId: Long): ResponseEntity<ByteArray> {
-        val img = tourImageService.findById(imageId)
-        if (img != null && img.tour?.id == tourId && img.data != null) {
+        val image = tourImageService.findById(imageId)
+        if (image != null && image.tour?.id == tourId && image.data != null) {
             return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(img.contentType ?: "image/jpeg"))
-                .body(img.data)
+                .contentType(MediaType.parseMediaType(image.contentType ?: "image/jpeg"))
+                .body(image.data)
         }
         return ResponseEntity.notFound().build()
     }

@@ -6,7 +6,6 @@ import kg.touragency.service.BookingService
 import kg.touragency.service.TourService
 import kg.touragency.service.UserService
 import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.http.ResponseEntity
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -27,18 +26,54 @@ class OperatorController(
     private val userService: UserService
 ) {
 
-    private fun currentOperator(principal: UserDetails) =
-        userService.findByEmail(principal.username) ?: throw SecurityException("Not found")
+    private fun currentOperator(principal: UserDetails): User {
+        // principal.username - это email пользователя, который вошел на сайт.
+        val email = principal.username
+        val operator = userService.findByEmail(email)
+
+        if (operator == null) {
+            throw SecurityException("Not found")
+        }
+
+        return operator
+    }
+
+    // Оператор может менять свой тур, админ может менять любой тур.
+    private fun canEdit(tour: Tour, operator: User): Boolean {
+        val isOwner = tour.operator?.id == operator.id
+        val isAdmin = operator.role == UserRole.ADMIN
+
+        return isOwner || isAdmin
+    }
 
     @GetMapping
     fun dashboard(@AuthenticationPrincipal principal: UserDetails, model: Model): String {
         val operator = currentOperator(principal)
         val tours = tourService.findByOperator(operator)
-        val activeTourCount = tours.count { it.status == TourStatus.ACTIVE }
-        val toursWithRating = tours.filter { it.reviewCount > 0 }
-        val avgRating = if (toursWithRating.isNotEmpty())
-            toursWithRating.map { it.rating }.average()
-        else null
+
+        var activeTourCount = 0
+        var ratingSum = 0.0
+        var ratingCount = 0
+
+        // Считаем активные туры и средний рейтинг вручную.
+        for (tour in tours) {
+            if (tour.status == TourStatus.ACTIVE) {
+                activeTourCount++
+            }
+
+            if (tour.reviewCount > 0) {
+                ratingSum += tour.rating
+                ratingCount++
+            }
+        }
+
+        val avgRating: Double?
+        if (ratingCount > 0) {
+            avgRating = ratingSum / ratingCount
+        } else {
+            avgRating = null
+        }
+
         model.addAttribute("operator", operator)
         model.addAttribute("tours", tours)
         model.addAttribute("bookings", bookingService.getByOperator(operator))
@@ -86,8 +121,12 @@ class OperatorController(
         model: Model
     ): String {
         val operator = currentOperator(principal)
-        val tour = tourService.findById(id) ?: return "redirect:/operator"
-        if (tour.operator?.id != operator.id && operator.role != UserRole.ADMIN) return "redirect:/operator"
+        val tour = tourService.findById(id)
+        if (tour == null) {
+            return "redirect:/operator"
+        }
+
+        if (!canEdit(tour, operator)) return "redirect:/operator"
         model.addAttribute("tour", tour)
         model.addAttribute("categories", TourCategory.values())
         return "operator/tour-edit"
@@ -108,8 +147,12 @@ class OperatorController(
         redirectAttributes: RedirectAttributes
     ): String {
         val operator = currentOperator(principal)
-        val tour = tourService.findById(id) ?: return "redirect:/operator"
-        if (tour.operator?.id != operator.id && operator.role != UserRole.ADMIN) return "redirect:/operator"
+        val tour = tourService.findById(id)
+        if (tour == null) {
+            return "redirect:/operator"
+        }
+
+        if (!canEdit(tour, operator)) return "redirect:/operator"
 
         tour.title = title
         tour.description = description
@@ -134,8 +177,12 @@ class OperatorController(
         redirectAttributes: RedirectAttributes
     ): String {
         val operator = currentOperator(principal)
-        val tour = tourService.findById(id) ?: return "redirect:/operator"
-        if (tour.operator?.id != operator.id && operator.role != UserRole.ADMIN) return "redirect:/operator"
+        val tour = tourService.findById(id)
+        if (tour == null) {
+            return "redirect:/operator"
+        }
+
+        if (!canEdit(tour, operator)) return "redirect:/operator"
         try {
             tourService.delete(id)
             redirectAttributes.addFlashAttribute("success", "Тур удалён.")
@@ -158,8 +205,12 @@ class OperatorController(
         redirectAttributes: RedirectAttributes
     ): String {
         val operator = currentOperator(principal)
-        val tour = tourService.findById(id) ?: return "redirect:/operator"
-        if (tour.operator?.id != operator.id && operator.role != UserRole.ADMIN) return "redirect:/operator"
+        val tour = tourService.findById(id)
+        if (tour == null) {
+            return "redirect:/operator"
+        }
+
+        if (!canEdit(tour, operator)) return "redirect:/operator"
         tourDateRepository.save(TourDate(tour = tour, departureDate = departureDate, returnDate = returnDate, totalSeats = totalSeats))
         redirectAttributes.addFlashAttribute("success", "Дата добавлена!")
         return "redirect:/operator/tours/${id}/edit"

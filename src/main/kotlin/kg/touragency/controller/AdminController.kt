@@ -22,40 +22,53 @@ class AdminController(
     private val tourImageService: TourImageService
 ) {
 
-    @GetMapping
-    fun dashboard(model: Model): String {
+    // Эти данные нужны почти на каждой странице админки.
+    private fun addAdminData(model: Model, activeTab: String) {
+        model.addAttribute("settings", siteSettingsService.getAll())
         model.addAttribute("userCount", userService.count())
         model.addAttribute("tourCount", tourService.count())
         model.addAttribute("activeTourCount", tourService.countActive())
         model.addAttribute("bookingCount", bookingService.count())
-        model.addAttribute("recentUsers", userService.findAll().sortedByDescending { it.createdAt }.take(10))
-        model.addAttribute("users", userService.findAll())
-        model.addAttribute("settings", siteSettingsService.getAll())
-        model.addAttribute("activeTab", "dashboard")
+        model.addAttribute("activeTab", activeTab)
+    }
+
+    @GetMapping
+    fun dashboard(model: Model): String {
+        addAdminData(model, "dashboard")
+
+        val allUsers = userService.findAll()
+        val recentUsers = allUsers.sortedByDescending { it.createdAt }.take(10)
+
+        model.addAttribute("recentUsers", recentUsers)
+        model.addAttribute("users", allUsers)
         return "admin/panel"
     }
 
     @GetMapping("/users")
     fun users(@RequestParam(required = false) q: String?, model: Model): String {
-        val users = if (q.isNullOrBlank()) userService.findAll() else userService.search(q)
+        addAdminData(model, "users")
+
+        val users = if (q.isNullOrBlank()) {
+            userService.findAll()
+        } else {
+            userService.search(q)
+        }
+
         model.addAttribute("users", users)
         model.addAttribute("q", q ?: "")
-        model.addAttribute("settings", siteSettingsService.getAll())
-        model.addAttribute("userCount", userService.count())
-        model.addAttribute("tourCount", tourService.count())
-        model.addAttribute("activeTourCount", tourService.countActive())
-        model.addAttribute("bookingCount", bookingService.count())
-        model.addAttribute("activeTab", "users")
         return "admin/panel"
     }
 
     @GetMapping("/users/{id}")
     fun userDetail(@PathVariable id: Long, model: Model): String {
-        val user = userService.findById(id) ?: return "redirect:/admin/users"
+        val user = userService.findById(id)
+        if (user == null) {
+            return "redirect:/admin/users"
+        }
+
+        addAdminData(model, "users")
         model.addAttribute("editUser", user)
         model.addAttribute("users", userService.findAll())
-        model.addAttribute("settings", siteSettingsService.getAll())
-        model.addAttribute("activeTab", "users")
         return "admin/panel"
     }
 
@@ -87,60 +100,66 @@ class AdminController(
 
     @GetMapping("/cms")
     fun cms(model: Model): String {
-        val settings = siteSettingsService.getAll()
-        model.addAttribute("settings", settings)
+        addAdminData(model, "cms")
         model.addAttribute("users", userService.findAll())
-        model.addAttribute("userCount", userService.count())
-        model.addAttribute("tourCount", tourService.count())
-        model.addAttribute("activeTourCount", tourService.countActive())
-        model.addAttribute("bookingCount", bookingService.count())
-        model.addAttribute("activeTab", "cms")
         return "admin/panel"
     }
 
     @PostMapping("/cms")
     fun saveCms(@RequestParam params: Map<String, String>, ra: RedirectAttributes): String {
+        // Эти настройки разрешено менять через админку.
         val allowed = setOf(
             "hero_title", "hero_subtitle", "hero_badge", "hero_btn_primary", "hero_btn_secondary",
             "stats_tours", "stats_clients", "stats_years", "stats_rating",
             "featured_section_title", "footer_phone", "footer_email", "footer_address"
         )
-        params.filter { it.key in allowed }.forEach { (k, v) -> siteSettingsService.set(k, v) }
+
+        // Сохраняем только разрешенные настройки.
+        for ((key, value) in params) {
+            if (key in allowed) {
+                siteSettingsService.set(key, value)
+            }
+        }
+
         ra.addFlashAttribute("successMsg", "Настройки сайта сохранены.")
         return "redirect:/admin/cms"
     }
 
     @GetMapping("/tours")
     fun adminTours(model: Model): String {
+        addAdminData(model, "tours")
         model.addAttribute("tours", tourService.findAll())
-        model.addAttribute("settings", siteSettingsService.getAll())
-        model.addAttribute("userCount", userService.count())
-        model.addAttribute("tourCount", tourService.count())
-        model.addAttribute("activeTourCount", tourService.countActive())
-        model.addAttribute("bookingCount", bookingService.count())
-        model.addAttribute("activeTab", "tours")
         return "admin/tours"
     }
 
     @GetMapping("/tours/{id}/images")
     fun manageImages(@PathVariable id: Long, model: Model): String {
-        val tour = tourService.findById(id) ?: return "redirect:/admin/tours"
+        val tour = tourService.findById(id)
+        if (tour == null) {
+            return "redirect:/admin/tours"
+        }
+
         val images = tourImageService.findByTour(tour)
+        addAdminData(model, "tours")
         model.addAttribute("tour", tour)
         model.addAttribute("images", images)
-        model.addAttribute("settings", siteSettingsService.getAll())
-        model.addAttribute("userCount", userService.count())
-        model.addAttribute("tourCount", tourService.count())
-        model.addAttribute("activeTourCount", tourService.countActive())
-        model.addAttribute("bookingCount", bookingService.count())
-        model.addAttribute("activeTab", "tours")
         return "admin/tour-images"
     }
 
     @PostMapping("/tours/{id}/images")
     fun uploadImages(@PathVariable id: Long, @RequestParam("images") images: Array<MultipartFile>, ra: RedirectAttributes): String {
-        val tour = tourService.findById(id) ?: return "redirect:/admin/tours"
-        images.filter { it != null && !it.isEmpty }.forEach { file -> tourImageService.save(tour, file) }
+        val tour = tourService.findById(id)
+        if (tour == null) {
+            return "redirect:/admin/tours"
+        }
+
+        // Загружаем только те файлы, которые не пустые.
+        for (file in images) {
+            if (!file.isEmpty) {
+                tourImageService.save(tour, file)
+            }
+        }
+
         ra.addFlashAttribute("successMsg", "Изображения загружены.")
         return "redirect:/admin/tours/${id}/images"
     }

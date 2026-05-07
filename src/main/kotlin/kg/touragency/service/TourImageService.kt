@@ -16,60 +16,102 @@ import javax.imageio.ImageWriter
 class TourImageService(private val repo: TourImageRepository) {
     fun save(tour: Tour, file: MultipartFile): TourImage {
         val original = file.bytes
-        val compressed = try { compressImage(original) } catch (e: Exception) { original }
-        val img = TourImage(tour = tour, data = compressed, contentType = "image/jpeg")
-        return repo.save(img)
+
+        // Сжимаем картинку, чтобы она занимала меньше места.
+        var compressed: ByteArray
+        try {
+            compressed = compressImage(original)
+        } catch (e: Exception) {
+            compressed = original
+        }
+
+        val image = TourImage(tour = tour, data = compressed, contentType = "image/jpeg")
+        return repo.save(image)
     }
 
     private fun compressImage(input: ByteArray, maxWidth: Int = 1600, quality: Float = 0.85f): ByteArray {
         val bais = ByteArrayInputStream(input)
-        val src = ImageIO.read(bais) ?: return input
-        val scale = if (src.width > maxWidth) (maxWidth.toDouble() / src.width) else 1.0
-        val w = Math.max(1, (src.width * scale).toInt())
-        val h = Math.max(1, (src.height * scale).toInt())
-        val thumb = java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB)
-        val g = thumb.createGraphics()
-        g.drawImage(src, 0, 0, w, h, null)
-        g.dispose()
+        val sourceImage = ImageIO.read(bais)
 
-        val baos = ByteArrayOutputStream()
+        if (sourceImage == null) {
+            return input
+        }
+
+        // Если картинка слишком широкая, уменьшаем ее.
+        val scale: Double
+        if (sourceImage.width > maxWidth) {
+            scale = maxWidth.toDouble() / sourceImage.width
+        } else {
+            scale = 1.0
+        }
+
+        val width = Math.max(1, (sourceImage.width * scale).toInt())
+        val height = Math.max(1, (sourceImage.height * scale).toInt())
+        val smallImage = java.awt.image.BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_RGB)
+        val graphics = smallImage.createGraphics()
+        graphics.drawImage(sourceImage, 0, 0, width, height, null)
+        graphics.dispose()
+
+        val output = ByteArrayOutputStream()
         val writers = ImageIO.getImageWritersByFormatName("jpg")
+
+        // Сохраняем результат как jpg.
         if (writers.hasNext()) {
             val writer = writers.next() as ImageWriter
-            val ios = ImageIO.createImageOutputStream(baos)
-            writer.output = ios
+            val imageOutput = ImageIO.createImageOutputStream(output)
+            writer.output = imageOutput
+
             val param = writer.defaultWriteParam
             if (param.canWriteCompressed()) {
                 param.compressionMode = ImageWriteParam.MODE_EXPLICIT
                 param.compressionQuality = quality
             }
-            writer.write(null, IIOImage(thumb, null, null), param)
-            ios.close()
+
+            writer.write(null, IIOImage(smallImage, null, null), param)
+            imageOutput.close()
             writer.dispose()
-            return baos.toByteArray()
+            return output.toByteArray()
         } else {
-            ImageIO.write(thumb, "jpg", baos)
-            return baos.toByteArray()
+            ImageIO.write(smallImage, "jpg", output)
+            return output.toByteArray()
         }
     }
 
-    fun findByTour(tour: Tour): List<TourImage> = repo.findByTourOrderById(tour)
-    fun findById(id: Long): TourImage? = repo.findById(id).orElse(null)
-    fun deleteById(id: Long) = repo.deleteById(id)
+    fun findByTour(tour: Tour): List<TourImage> {
+        return repo.findByTourOrderById(tour)
+    }
+
+    fun findById(id: Long): TourImage? {
+        return repo.findById(id).orElse(null)
+    }
+
+    fun deleteById(id: Long) {
+        repo.deleteById(id)
+    }
 
     fun recompressAll(): Int {
         val all = repo.findAll()
         var count = 0
         for (img in all) {
             try {
-                val original = img.data ?: continue
-                val compressed = try { compressImage(original) } catch (e: Exception) { original }
+                val original = img.data
+                if (original == null) {
+                    continue
+                }
+
+                var compressed: ByteArray
+                try {
+                    compressed = compressImage(original)
+                } catch (e: Exception) {
+                    compressed = original
+                }
+
                 img.data = compressed
                 img.contentType = "image/jpeg"
                 repo.save(img)
                 count++
             } catch (e: Exception) {
-                // ignore individual failures
+                // Если одна картинка не сжалась, продолжаем остальные.
             }
         }
         return count

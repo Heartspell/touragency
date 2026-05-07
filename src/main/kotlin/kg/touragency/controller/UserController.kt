@@ -18,7 +18,11 @@ class UserController(
 
     @GetMapping
     fun cabinet(@AuthenticationPrincipal principal: UserDetails, model: Model): String {
-        val user = userService.findByEmail(principal.username) ?: return "redirect:/login"
+        val user = userService.findByEmail(principal.username)
+        if (user == null) {
+            return "redirect:/login"
+        }
+
         val bookings = bookingService.getByTourist(user)
         model.addAttribute("user", user)
         model.addAttribute("bookings", bookings)

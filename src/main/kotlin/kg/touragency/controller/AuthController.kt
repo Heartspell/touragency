@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.*
 @Controller
 class AuthController(private val userService: UserService) {
 
-    // Legacy pages kept for redirect fallback
+    // Страница входа также показывает форму регистрации.
     @GetMapping("/login")
-    fun login() = "auth/login"
+    fun login(): String {
+        return "auth/login"
+    }
 
     @GetMapping("/register")
-    fun registerPage() = "auth/login"
+    fun registerPage(): String {
+        return "auth/login"
+    }
 
     @PostMapping("/register")
     @ResponseBody
@@ -24,11 +28,15 @@ class AuthController(private val userService: UserService) {
         @RequestParam fullName: String,
         @RequestParam(defaultValue = "") phone: String
     ): ResponseEntity<Map<String, String>> {
-        return try {
+        try {
             userService.register(email, password, fullName, phone, UserRole.TOURIST)
-            ResponseEntity.ok(mapOf("status" to "ok"))
+
+            val answer = mapOf("status" to "ok")
+            return ResponseEntity.ok(answer)
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.badRequest().body(mapOf("error" to (e.message ?: "Ошибка")))
+            val message = e.message ?: "Ошибка"
+            val answer = mapOf("error" to message)
+            return ResponseEntity.badRequest().body(answer)
         }
     }
 }

@@ -11,46 +11,73 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class TourService(private val tourRepository: TourRepository) {
 
-    fun getFeatured(): List<Tour> =
-        tourRepository.findTop8ByStatusOrderByCreatedAtDesc(TourStatus.ACTIVE)
+    fun getFeatured(): List<Tour> {
+        // Берем 8 последних активных туров для главной страницы.
+        return tourRepository.findTop8ByStatusOrderByCreatedAtDesc(TourStatus.ACTIVE)
+    }
 
     fun search(filter: TourFilter): List<Tour> {
         val spec = Specification<Tour> { root, _, cb ->
             val predicates = mutableListOf<Predicate>()
+
+            // Показываем только активные туры.
             predicates.add(cb.equal(root.get<TourStatus>("status"), TourStatus.ACTIVE))
-            filter.destination?.takeIf { it.isNotBlank() }?.let {
-                predicates.add(cb.like(cb.lower(root.get("destination")), "%${it.lowercase()}%"))
+
+            // Добавляем фильтры только если пользователь их заполнил.
+            if (filter.destination != null && filter.destination.isNotBlank()) {
+                val destinationText = filter.destination.lowercase()
+                predicates.add(cb.like(cb.lower(root.get("destination")), "%$destinationText%"))
             }
-            filter.country?.takeIf { it.isNotBlank() }?.let {
-                predicates.add(cb.like(cb.lower(root.get("country")), "%${it.lowercase()}%"))
+
+            if (filter.country != null && filter.country.isNotBlank()) {
+                val countryText = filter.country.lowercase()
+                predicates.add(cb.like(cb.lower(root.get("country")), "%$countryText%"))
             }
-            filter.category?.let {
-                predicates.add(cb.equal(root.get<TourCategory>("category"), it))
+
+            if (filter.category != null) {
+                predicates.add(cb.equal(root.get<TourCategory>("category"), filter.category))
             }
-            filter.minPrice?.let {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), it))
+
+            if (filter.minPrice != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), filter.minPrice))
             }
-            filter.maxPrice?.let {
-                predicates.add(cb.lessThanOrEqualTo(root.get("price"), it))
+
+            if (filter.maxPrice != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("price"), filter.maxPrice))
             }
+
             cb.and(*predicates.toTypedArray())
         }
         return tourRepository.findAll(spec)
     }
 
-    fun findById(id: Long): Tour? = tourRepository.findById(id).orElse(null)
+    fun findById(id: Long): Tour? {
+        return tourRepository.findById(id).orElse(null)
+    }
 
-    fun findByOperator(operator: User): List<Tour> = tourRepository.findByOperator(operator)
+    fun findByOperator(operator: User): List<Tour> {
+        return tourRepository.findByOperator(operator)
+    }
 
     @Transactional
-    fun save(tour: Tour): Tour = tourRepository.save(tour)
+    fun save(tour: Tour): Tour {
+        return tourRepository.save(tour)
+    }
 
     @Transactional
-    fun delete(id: Long) = tourRepository.deleteById(id)
+    fun delete(id: Long) {
+        tourRepository.deleteById(id)
+    }
 
-    fun count(): Long = tourRepository.count()
+    fun count(): Long {
+        return tourRepository.count()
+    }
 
-    fun countActive(): Long = tourRepository.findByStatus(TourStatus.ACTIVE).size.toLong()
+    fun countActive(): Long {
+        return tourRepository.findByStatus(TourStatus.ACTIVE).size.toLong()
+    }
 
-    fun findAll(): List<Tour> = tourRepository.findAll()
+    fun findAll(): List<Tour> {
+        return tourRepository.findAll()
+    }
 }

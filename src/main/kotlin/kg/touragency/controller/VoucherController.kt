@@ -26,28 +26,39 @@ class VoucherController(
         model: Model
     ): String {
         val booking = bookingRepository.findById(bookingId).orElse(null)
-            ?: return "redirect:/cabinet"
+        if (booking == null) {
+            return "redirect:/cabinet"
+        }
 
         val currentUser = userService.findByEmail(principal.username)
-            ?: return "redirect:/cabinet"
+        if (currentUser == null) {
+            return "redirect:/cabinet"
+        }
 
-        // Only the tourist who booked (or admin) can view the voucher
+        // Ваучер видит только владелец брони или админ.
         val isOwner = booking.tourist?.id == currentUser.id
         val isAdmin = currentUser.role.name == "ADMIN"
-        if (!isOwner && !isAdmin) return "redirect:/cabinet"
+        if (!isOwner && !isAdmin) {
+            return "redirect:/cabinet"
+        }
 
-        // Only CONFIRMED bookings get a voucher
-        if (booking.status != BookingStatus.CONFIRMED) return "redirect:/cabinet"
+        // Ваучер доступен только после оплаты.
+        if (booking.status != BookingStatus.CONFIRMED) {
+            return "redirect:/cabinet"
+        }
 
         model.addAttribute("booking", booking)
         model.addAttribute("tour", booking.tourDate?.tour)
         model.addAttribute("tourDate", booking.tourDate)
         model.addAttribute("tourist", booking.tourist)
-        // Voucher number: year + zero-padded ID
-        val voucherNumber = "TKG-${booking.createdAt.year}-${booking.id.toString().padStart(6, '0')}"
+
+        // Номер ваучера: год и id брони.
+        val year = booking.createdAt.year
+        val bookingNumber = booking.id.toString().padStart(6, '0')
+        val voucherNumber = "TKG-$year-$bookingNumber"
         model.addAttribute("voucherNumber", voucherNumber)
 
-        // Price per person (computed here because SpEL can't instantiate BigDecimal)
+        // Цена за одного человека.
         val participants = booking.participants.coerceAtLeast(1)
         val pricePerPerson = booking.totalPrice
             .divide(BigDecimal(participants), 0, RoundingMode.HALF_UP)

@@ -11,6 +11,7 @@ class TourImageInitializer(
 ) : CommandLineRunner {
 
     override fun run(vararg args: String?) {
+        // Для каждого направления есть картинка по умолчанию.
         val images = mapOf(
             "Иссык-Куль" to "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
             "Ала-Тоо" to "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
@@ -34,12 +35,14 @@ class TourImageInitializer(
         for (tour in tours) {
             if (tour.coverImage != null) continue
 
+            // Ищем картинку по названию или направлению тура.
             val url = images.entries
                 .firstOrNull { tour.title.contains(it.key, ignoreCase = true) || tour.destination.contains(it.key, ignoreCase = true) }
                 ?.value
                 ?: continue
 
             try {
+                // Скачиваем картинку и сохраняем ее в тур.
                 tour.coverImage = URI(url).toURL().readBytes()
                 tour.coverImageType = "image/jpeg"
                 tourRepository.save(tour)

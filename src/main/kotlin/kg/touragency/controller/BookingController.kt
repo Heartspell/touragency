@@ -21,7 +21,11 @@ class BookingController(
 
     @GetMapping("/new")
     fun wizard(@RequestParam tourDateId: Long, model: Model): String {
-        val tourDate = tourDateRepository.findById(tourDateId).orElse(null) ?: return "redirect:/tours"
+        val tourDate = tourDateRepository.findById(tourDateId).orElse(null)
+        if (tourDate == null) {
+            return "redirect:/tours"
+        }
+
         model.addAttribute("tourDate", tourDate)
         model.addAttribute("tour", tourDate.tour)
         return "booking/wizard"
@@ -33,14 +37,19 @@ class BookingController(
         @AuthenticationPrincipal principal: UserDetails,
         redirectAttributes: RedirectAttributes
     ): String {
-        val tourist = userService.findByEmail(principal.username) ?: return "redirect:/login"
-        return try {
+        val tourist = userService.findByEmail(principal.username)
+        if (tourist == null) {
+            return "redirect:/login"
+        }
+
+        try {
             val booking = bookingService.createBooking(request, tourist)
-            // Redirect to payment method selection
-            "redirect:/payment/choose?bookingId=${booking.id}&amount=${booking.totalPrice}"
+
+            // После брони отправляем пользователя на оплату.
+            return "redirect:/payment/choose?bookingId=${booking.id}&amount=${booking.totalPrice}"
         } catch (e: Exception) {
             redirectAttributes.addFlashAttribute("error", e.message)
-            "redirect:/booking/new?tourDateId=${request.tourDateId}"
+            return "redirect:/booking/new?tourDateId=${request.tourDateId}"
         }
     }
 
@@ -50,14 +59,18 @@ class BookingController(
         @AuthenticationPrincipal principal: UserDetails,
         redirectAttributes: RedirectAttributes
     ): String {
-        val tourist = userService.findByEmail(principal.username) ?: return "redirect:/login"
-        return try {
+        val tourist = userService.findByEmail(principal.username)
+        if (tourist == null) {
+            return "redirect:/login"
+        }
+
+        try {
             bookingService.cancel(id, tourist)
             redirectAttributes.addFlashAttribute("success", "Бронирование отменено.")
-            "redirect:/cabinet"
+            return "redirect:/cabinet"
         } catch (e: Exception) {
             redirectAttributes.addFlashAttribute("error", e.message)
-            "redirect:/cabinet"
+            return "redirect:/cabinet"
         }
     }
 }

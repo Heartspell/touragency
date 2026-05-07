@@ -16,7 +16,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 class SecurityConfig {
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+    fun passwordEncoder(): PasswordEncoder {
+        // BCrypt шифрует пароль перед сохранением.
+        return BCryptPasswordEncoder()
+    }
 
     @Bean
     fun authenticationProvider(userService: UserService, passwordEncoder: PasswordEncoder): DaoAuthenticationProvider {
@@ -29,12 +32,19 @@ class SecurityConfig {
     @Bean
     fun successHandler(): AuthenticationSuccessHandler {
         return AuthenticationSuccessHandler { _, response, authentication ->
-            val roles = authentication.authorities.map { it.authority }
-            val redirect = when {
-                "ROLE_ADMIN" in roles -> "/admin"
-                "ROLE_OPERATOR" in roles -> "/operator"
-                else -> "/cabinet"
+            var redirect = "/cabinet"
+
+            // После входа отправляем пользователя на его страницу.
+            for (authority in authentication.authorities) {
+                if (authority.authority == "ROLE_ADMIN") {
+                    redirect = "/admin"
+                }
+
+                if (authority.authority == "ROLE_OPERATOR") {
+                    redirect = "/operator"
+                }
             }
+
             response.sendRedirect(redirect)
         }
     }

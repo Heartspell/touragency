@@ -7,28 +7,22 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import java.util.*
+import java.time.Duration
+import java.util.Locale
 
 @Configuration
 class I18nConfig : WebMvcConfigurer {
 
-    /**
-     * Сохраняет выбранный язык в cookie
-     * Работает с фронтенд cookie 'tkg-lang' и параметром 'lang' в URL
-     */
+    // Сохраняем выбранный язык в cookie.
     @Bean
     fun localeResolver(): LocaleResolver {
-        val resolver = CookieLocaleResolver()
-        resolver.setDefaultLocale(Locale("ru"))
-        resolver.setCookieName("tkg-lang") // Совпадает с фронтенд cookie
-        resolver.setCookieMaxAge(365 * 24 * 60 * 60) // 1 год
+        val resolver = CookieLocaleResolver("tkg-lang")
+        resolver.setDefaultLocale(Locale.of("ru"))
+        resolver.setCookieMaxAge(Duration.ofDays(365))
         return resolver
     }
 
-    /**
-     * Перехватывает параметр 'lang' в URL и меняет язык
-     * Пример: /tours?lang=kg
-     */
+    // Меняем язык, если в адресе есть ?lang=...
     @Bean
     fun localeChangeInterceptor(): LocaleChangeInterceptor {
         val interceptor = LocaleChangeInterceptor()
@@ -36,9 +30,7 @@ class I18nConfig : WebMvcConfigurer {
         return interceptor
     }
 
-    /**
-     * Регистрирует перехватчик
-     */
+    // Подключаем смену языка к сайту.
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(localeChangeInterceptor())
     }

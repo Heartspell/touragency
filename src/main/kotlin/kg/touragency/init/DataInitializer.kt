@@ -20,7 +20,7 @@ class DataInitializer(
 ) : CommandLineRunner {
 
     override fun run(vararg args: String?) {
-        // Seed default site settings
+        // Настройки главной страницы по умолчанию.
         val defaults = mapOf(
             "hero_title" to "Откройте Кыргызстан и мир",
             "hero_subtitle" to "Лучшие туры от проверенных операторов. Бронируйте онлайн — быстро, безопасно, выгодно.",
@@ -36,10 +36,17 @@ class DataInitializer(
             "footer_email" to "info@tourkg.com",
             "footer_address" to "г. Бишкек, пр. Чуй 155"
         )
-        defaults.forEach { (k, v) -> if (siteSettingsService.get(k) == "") siteSettingsService.set(k, v) }
+        for ((key, value) in defaults) {
+            val oldValue = siteSettingsService.get(key)
+            if (oldValue == "") {
+                siteSettingsService.set(key, value)
+            }
+        }
 
-        // Skip if data already seeded (persistent DB)
-        if (userService.findByEmail("admin@tour.kg") != null) return
+        // Если админ уже есть, тестовые данные повторно не создаем.
+        if (userService.findByEmail("admin@tour.kg") != null) {
+            return
+        }
 
         val admin = userService.register("admin@tour.kg", "admin123", "Администратор", "+996700000001", UserRole.ADMIN)
         val operator = userService.register("operator@tour.kg", "operator123", "Туристик Оператор", "+996700000002", UserRole.OPERATOR)
@@ -56,7 +63,7 @@ class DataInitializer(
         )
 
         val toursData = listOf(
-            // Kyrgyzstan
+            // Кыргызстан.
             TourInfo(
                 "Иссык-Куль — Жемчужина Средней Азии",
                 "Отдых на берегу уникального высокогорного озера Иссык-Куль — одного из крупнейших горных озёр мира. Кристально чистая вода, живописные пляжи у подножия снежных пиков Тянь-Шаня, горячие источники и свежий горный воздух. Программа включает купание, прогулки по прибрежным сёлам, посещение петроглифов Чолпон-Ата и дегустацию традиционной кыргызской кухни.",
@@ -83,7 +90,7 @@ class DataInitializer(
                 "Ош", "Кыргызстан", TourCategory.CULTURAL, 3, BigDecimal("7500")
             ),
 
-            // Turkey
+            // Турция.
             TourInfo(
                 "Турция — Анталья All Inclusive",
                 "Пляжный отдых на Средиземноморском побережье Турции. Отели 5* с системой «всё включено» — безлимитная еда, напитки, развлечения. Анимация для детей и взрослых, аквапарки, дайвинг и снорклинг в бирюзовых водах. Экскурсии в античный Перге, Термес и Аспендос с амфитеатром II века н.э.",
@@ -95,14 +102,14 @@ class DataInitializer(
                 "Каппадокия", "Турция", TourCategory.CULTURAL, 5, BigDecimal("52000")
             ),
 
-            // UAE
+            // ОАЭ.
             TourInfo(
                 "ОАЭ — Дубай",
                 "Роскошный отдых в городе будущего. Смотровая площадка Бурдж-Халифа — самого высокого здания в мире, шопинг в Mall of the Emirates с горнолыжным склопом внутри торгового центра, сафари в пустыне на джипах с ужином у костра. Пляжный отдых на Jumeirah Beach, круиз на яхте с видом на Dubai Marina.",
                 "Дубай", "ОАЭ", TourCategory.CITY, 5, BigDecimal("65000")
             ),
 
-            // Thailand
+            // Таиланд.
             TourInfo(
                 "Таиланд — Пхукет",
                 "Экзотический отдых на тропическом острове в Андаманском море. Белоснежные пляжи Патонг, Ката и Карон, кристально чистая вода, кораллы и разноцветные рыбки. Экскурсия на острова Пхи-Пхи — декорации к фильму «Пляж». Тайский массаж, тайская кухня, вечерний тайский бокс. Поездка в буддийские храмы.",
@@ -114,42 +121,42 @@ class DataInitializer(
                 "Бангкок", "Таиланд", TourCategory.CULTURAL, 10, BigDecimal("82000")
             ),
 
-            // Italy
+            // Италия.
             TourInfo(
                 "Италия — Рим и Ватикан",
                 "Культурный тур по вечному городу. Колизей и Форум — сердце Римской империи, Ватиканские музеи и Сикстинская капелла с фресками Микеланджело, фонтан Треви и площадь Навона. Дегустация пасты карбонара, пиццы и джелато. Поездки во Флоренцию и к холмам Тосканы.",
                 "Рим", "Италия", TourCategory.CULTURAL, 8, BigDecimal("95000")
             ),
 
-            // Egypt
+            // Египет.
             TourInfo(
                 "Египет — Шарм-эш-Шейх",
                 "Коралловые рифы Красного моря — один из лучших дайвинг-спотов планеты. Отели 5* на берегу моря, кристально чистая вода с видимостью до 30 метров, дельфины и черепахи. Экскурсии: монастырь Святой Екатерины на Синае, Каир с пирамидами Гизы и Сфинксом, Луксор с Долиной Царей.",
                 "Шарм-эш-Шейх", "Египет", TourCategory.BEACH, 7, BigDecimal("52000")
             ),
 
-            // China
+            // Китай.
             TourInfo(
                 "Китай — Пекин и Великая стена",
                 "Великая китайская стена — одно из семи чудес света, протяжённостью более 21 000 км. Запретный город — дворец 600 лет истории и 9999 комнат. Храм Неба, рынок Шелка, Олимпийский парк. Дегустация пекинской утки. Поездка в Сиань к Терракотовой армии — 8000 воинов в полный рост.",
                 "Пекин", "Китай", TourCategory.CULTURAL, 8, BigDecimal("88000")
             ),
 
-            // Georgia
+            // Грузия.
             TourInfo(
                 "Грузия — Тбилиси и горы",
                 "Страна Золотого руна и колыбель виноделия. Старый Тбилиси с сернистыми банями, крепостью Нарикала и балконами, увитыми виноградом. Военно-Грузинская дорога к горе Казбеги и церкви Гергети в облаках. Кахетия — столица грузинского вина, дегустация в маранях. Монастырь Давид-Гареджи.",
                 "Тбилиси", "Грузия", TourCategory.CULTURAL, 7, BigDecimal("38000")
             ),
 
-            // Bali
+            // Бали.
             TourInfo(
                 "Бали — Остров богов",
                 "Тропический рай на индонезийском острове. Рисовые террасы Тегалалланг, индуистский храм Танах Лот над морем, священная обезьяна лес в Убуде. Серфинг на Куте, йога-ретриты в Убуде, балийский массаж и спа. Вулкан Батур — восход над облаками. Рынки с местными специями и серебром.",
                 "Убуд / Кута", "Индонезия", TourCategory.BEACH, 12, BigDecimal("92000")
             ),
 
-            // Japan
+            // Япония.
             TourInfo(
                 "Япония — Токио и Киото",
                 "Страна восходящего солнца — уникальное сочетание традиций и технологий. Токио: Сибуя, Акихабара, Асакуса с храмом Сенсо-дзи. Чайная церемония и урок икебаны в Киото. Бамбуковая роща Арасияма, золотой павильон Кинкаку-дзи. Фудзияма и онсэн. Суши и рамэн в местных ресторанах. Покупки в Акихабаре.",
@@ -158,7 +165,10 @@ class DataInitializer(
         )
 
         val now = LocalDate.now()
-        val tours = toursData.map { info ->
+        val tours = mutableListOf<Tour>()
+
+        // Создаем туры и сразу добавляем даты выезда.
+        for (info in toursData) {
             val tour = Tour(
                 title = info.title, description = info.description,
                 destination = info.destination, country = info.country,
@@ -171,14 +181,14 @@ class DataInitializer(
             tourDateRepository.save(TourDate(tour = saved, departureDate = now.plusMonths(1), returnDate = now.plusMonths(1).plusDays(info.days.toLong()), totalSeats = 20))
             tourDateRepository.save(TourDate(tour = saved, departureDate = now.plusMonths(2), returnDate = now.plusMonths(2).plusDays(info.days.toLong()), totalSeats = 20))
             tourDateRepository.save(TourDate(tour = saved, departureDate = now.plusMonths(3), returnDate = now.plusMonths(3).plusDays(info.days.toLong()), totalSeats = 15))
-            saved
+            tours.add(saved)
         }
 
-        // Sample bookings
+        // Примеры бронирований.
         val firstDate = tourDateRepository.findByTour(tours[0]).first()
         firstDate.bookedSeats = 2
         tourDateRepository.save(firstDate)
-        val booking1 = bookingRepository.save(Booking(tourist = tourist, tourDate = firstDate, participants = 2,
+        bookingRepository.save(Booking(tourist = tourist, tourDate = firstDate, participants = 2,
             totalPrice = tours[0].price.multiply(BigDecimal("2")), status = BookingStatus.CONFIRMED))
 
         val secondDate = tourDateRepository.findByTour(tours[4]).first()
@@ -187,7 +197,7 @@ class DataInitializer(
         bookingRepository.save(Booking(tourist = tourist, tourDate = secondDate, participants = 1,
             totalPrice = tours[4].price, status = BookingStatus.CONFIRMED))
 
-        // Sample reviews
+        // Примеры отзывов.
         val review1 = Review(tourist = tourist, tour = tours[0], rating = 5,
             comment = "Отличный тур! Озеро Иссык-Куль просто потрясающее. Вода чистейшая, виды на горы невероятные. Обязательно поедем ещё раз!")
         reviewRepository.save(review1)

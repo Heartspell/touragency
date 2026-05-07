@@ -19,24 +19,33 @@ class BookingService(
 
     @Transactional
     fun createBooking(request: BookingRequest, tourist: User): Booking {
+        // Сначала находим дату тура.
         val tourDate = tourDateRepository.findById(request.tourDateId)
             .orElseThrow { IllegalArgumentException("Tour date not found") }
 
+        // Проверяем, что мест хватает.
         if (tourDate.availableSeats < request.participants) {
             throw IllegalStateException("Not enough seats available")
         }
 
+        // Занимаем места и создаем бронь.
         tourDate.bookedSeats += request.participants
         tourDateRepository.save(tourDate)
+
+        val tour = tourDate.tour!!
+        val priceForOnePerson = tour.price
+        val peopleCount = request.participants.toBigDecimal()
+        val totalPrice = priceForOnePerson.multiply(peopleCount)
 
         val booking = Booking(
             tourist = tourist,
             tourDate = tourDate,
             participants = request.participants,
-            totalPrice = tourDate.tour!!.price.multiply(request.participants.toBigDecimal()),
+            totalPrice = totalPrice,
             status = BookingStatus.PENDING,
             notes = request.notes
         )
+
         return bookingRepository.save(booking)
     }
 
@@ -44,9 +53,17 @@ class BookingService(
     fun cancel(bookingId: Long, tourist: User) {
         val booking = bookingRepository.findById(bookingId)
             .orElseThrow { IllegalArgumentException("Booking not found") }
-        if (booking.tourist?.id != tourist.id) throw SecurityException("Access denied")
-        if (booking.status == BookingStatus.CANCELLED) return
 
+        // Турист может отменить только свою бронь.
+        if (booking.tourist?.id != tourist.id) {
+            throw SecurityException("Access denied")
+        }
+
+        if (booking.status == BookingStatus.CANCELLED) {
+            return
+        }
+
+        // Освобождаем занятые места.
         booking.status = BookingStatus.CANCELLED
         val tourDate = booking.tourDate!!
         tourDate.bookedSeats -= booking.participants
@@ -57,6 +74,7 @@ class BookingService(
     @Scheduled(fixedDelay = 60_000)
     @Transactional
     fun cancelExpiredBookings() {
+        // Каждую минуту отменяем неоплаченные брони.
         val now = LocalDateTime.now()
         val expired = bookingRepository.findByStatusAndPaymentDeadlineBefore(BookingStatus.PENDING, now)
         for (booking in expired) {
@@ -70,15 +88,23 @@ class BookingService(
         }
     }
 
-    fun getByTourist(tourist: User): List<Booking> =
-        bookingRepository.findByTouristOrderByCreatedAtDesc(tourist)
+    fun getByTourist(tourist: User): List<Booking> {
+        return bookingRepository.findByTouristOrderByCreatedAtDesc(tourist)
+    }
 
-    fun getByOperator(operator: User): List<Booking> =
-        bookingRepository.findByTourDate_Tour_OperatorOrderByCreatedAtDesc(operator)
+    fun getByOperator(operator: User): List<Booking> {
+        return bookingRepository.findByTourDate_Tour_OperatorOrderByCreatedAtDesc(operator)
+    }
 
-    fun findById(id: Long): Booking? = bookingRepository.findById(id).orElse(null)
+    fun findById(id: Long): Booking? {
+        return bookingRepository.findById(id).orElse(null)
+    }
 
-    fun count(): Long = bookingRepository.count()
+    fun count(): Long {
+        return bookingRepository.count()
+    }
 
-    fun countByOperator(operator: User): Long = bookingRepository.countByTourDate_Tour_Operator(operator)
+    fun countByOperator(operator: User): Long {
+        return bookingRepository.countByTourDate_Tour_Operator(operator)
+    }
 }
